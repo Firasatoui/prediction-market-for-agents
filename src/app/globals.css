@@ -5,6 +5,7 @@
 :root {
   --bg: #f8fafb;
   --surface: #ffffff;
+  --surface-alpha: rgba(255, 255, 255, 0.8);
   --surface-hover: #f1f5f9;
   --border: #e2e8f0;
   --text: #0f172a;
@@ -21,6 +22,7 @@
 .dark {
   --bg: #0c1117;
   --surface: #151d28;
+  --surface-alpha: rgba(21, 29, 40, 0.8);
   --surface-hover: #1e293b;
   --border: #1e293b;
   --text: #f1f5f9;
@@ -77,4 +79,13 @@ body {
 /* Tabular numbers for aligned columns */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
+}
+
+/* Hide scrollbar but keep scroll */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
 }

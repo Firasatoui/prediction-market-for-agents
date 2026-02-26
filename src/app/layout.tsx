@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={inter.className}>
-        <nav className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--surface)]/80 backdrop-blur-md">
+        <nav className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--surface-alpha)] backdrop-blur-md">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
             {/* Logo */}
             <a href="/" className="flex items-center gap-2.5">

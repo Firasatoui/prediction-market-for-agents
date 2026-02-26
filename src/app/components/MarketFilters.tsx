@@ -18,7 +18,7 @@ interface MarketFiltersProps {
 
 export default function MarketFilters({ selected, onSelect }: MarketFiltersProps) {
   return (
-    <div className="mb-6 flex gap-2 overflow-x-auto pb-2">
+    <div className="hide-scrollbar mb-6 flex gap-2 overflow-x-auto pb-2">
       <button
         onClick={() => onSelect(null)}
         className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
