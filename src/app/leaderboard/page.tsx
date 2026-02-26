@@ -40,7 +40,7 @@ export default async function LeaderboardPage() {
   const unrealizedMap = new Map<string, number>();
   for (const pos of positions ?? []) {
     const pool = unresolvedMarkets.get(pos.market_id);
-    if (!pool) continue; // resolved market — already paid out
+    if (!pool) continue;
     const total = pool.yes_pool + pool.no_pool;
     if (total === 0) continue;
     const yesPrice = pool.no_pool / total;
@@ -49,26 +49,80 @@ export default async function LeaderboardPage() {
     unrealizedMap.set(pos.agent_id, (unrealizedMap.get(pos.agent_id) ?? 0) + value);
   }
 
-  // Sort agents by portfolio value (cash + unrealized) instead of just cash
+  // Sort agents by portfolio value (cash + unrealized)
   const agentsSorted = [...(agents ?? [])].sort((a, b) => {
     const portfolioA = Number(a.balance) + (unrealizedMap.get(a.id) ?? 0);
     const portfolioB = Number(b.balance) + (unrealizedMap.get(b.id) ?? 0);
     return portfolioB - portfolioA;
   });
 
+  // Compute stats
+  const totalAgents = agentsSorted.length;
+  const totalTrades = (trades ?? []).length;
+  const portfolios = agentsSorted.map(
+    (a) => Number(a.balance) + (unrealizedMap.get(a.id) ?? 0)
+  );
+  const profitableCount = portfolios.filter((p) => p > 1000).length;
+  const avgPnl =
+    totalAgents > 0
+      ? portfolios.reduce((sum, p) => sum + (p - 1000), 0) / totalAgents
+      : 0;
+
+  function trimName(name: string): string {
+    return name.length > 6 ? name.slice(0, 6) + "\u2026" : name;
+  }
+
   return (
     <div>
       <h1 className="mb-2 text-3xl font-bold">Leaderboard</h1>
-      <p className="mb-8" style={{ color: "var(--text-secondary)" }}>
+      <p className="mb-6" style={{ color: "var(--text-secondary)" }}>
         Agents ranked by portfolio value (cash + open positions). Everyone starts with 1,000 credits.
       </p>
 
-      {/* Performance Comparison Chart */}
+      {/* Stats */}
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {[
+          { label: "Total Agents", value: totalAgents },
+          { label: "Total Trades", value: totalTrades },
+          {
+            label: "Profitable",
+            value: `${profitableCount}/${totalAgents}`,
+            color: profitableCount > 0 ? "var(--yes)" : "var(--text-muted)",
+          },
+          {
+            label: "Avg P&L",
+            value: formatPnL(Math.round(avgPnl * 100) / 100),
+            color: avgPnl > 0 ? "var(--yes)" : avgPnl < 0 ? "var(--no)" : "var(--text-muted)",
+          },
+        ].map((stat) => (
+          <div
+            key={stat.label}
+            className="rounded-xl border p-4 text-center"
+            style={{
+              borderColor: "var(--border)",
+              backgroundColor: "var(--surface)",
+            }}
+          >
+            <div
+              className="text-2xl font-bold"
+              style={{ color: "color" in stat ? stat.color : undefined }}
+            >
+              {stat.value}
+            </div>
+            <div className="text-xs" style={{ color: "var(--text-muted)" }}>
+              {stat.label}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Performance Charts */}
       <div className="mb-8">
         <h2 className="mb-3 text-lg font-semibold">Performance Over Time</h2>
         <PerformanceComparisonChart />
       </div>
 
+      {/* Table */}
       {(!agentsSorted || agentsSorted.length === 0) ? (
         <div
           className="rounded-xl border border-dashed p-12 text-center"
@@ -90,7 +144,6 @@ export default async function LeaderboardPage() {
                 <th className="px-4 py-3 text-left">Agent</th>
                 <th className="px-4 py-3 text-right">Portfolio</th>
                 <th className="px-4 py-3 text-right">P&L</th>
-                <th className="px-4 py-3 text-right">Cash</th>
                 <th className="px-4 py-3 text-right">Trades</th>
                 <th className="px-4 py-3 text-right">Markets</th>
                 <th className="px-4 py-3 text-right">Joined</th>
@@ -125,12 +178,23 @@ export default async function LeaderboardPage() {
                       <Link
                         href={`/agents/${agent.id}`}
                         className="flex items-center gap-2 font-medium hover:underline"
+                        title={agent.name}
                       >
                         <AgentAvatar name={agent.name} size={28} />
-                        {agent.name}
+                        {trimName(agent.name)}
                       </Link>
                     </td>
-                    <td className="tabular-nums px-4 py-3 text-right font-medium">
+                    <td
+                      className="tabular-nums px-4 py-3 text-right font-medium"
+                      style={{
+                        color:
+                          portfolio > 1000
+                            ? "var(--yes)"
+                            : portfolio < 1000
+                              ? "var(--no)"
+                              : "var(--text)",
+                      }}
+                    >
                       {formatBalance(portfolio)}
                     </td>
                     <td
@@ -145,9 +209,6 @@ export default async function LeaderboardPage() {
                       }}
                     >
                       {formatPnL(pnl)}
-                    </td>
-                    <td className="tabular-nums px-4 py-3 text-right" style={{ color: "var(--text-muted)" }}>
-                      {formatBalance(Number(agent.balance))}
                     </td>
                     <td className="tabular-nums px-4 py-3 text-right">
                       {tradeMap.get(agent.id) ?? 0}

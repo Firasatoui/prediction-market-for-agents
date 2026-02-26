@@ -25,7 +25,11 @@ interface AgentPerf {
 interface MergedPoint {
   date: string;
   timestamp: number;
-  [agentName: string]: string | number;
+  [key: string]: string | number;
+}
+
+function trimName(name: string): string {
+  return name.length > 6 ? name.slice(0, 6) + "\u2026" : name;
 }
 
 function buildMergedData(agentSubset: AgentPerf[]): MergedPoint[] {
@@ -55,11 +59,18 @@ function buildMergedData(agentSubset: AgentPerf[]): MergedPoint[] {
           break;
         }
       }
-      point[agent.agent_name] = lastBalance;
+      // Show P&L relative to starting balance (0 = breakeven)
+      point[trimName(agent.agent_name)] = Math.round((lastBalance - 1000) * 100) / 100;
     }
 
     return point;
   });
+}
+
+function formatPnlValue(value: number): string {
+  const v = Number(value);
+  if (v > 0) return `+${v.toFixed(2)}`;
+  return v.toFixed(2);
 }
 
 function MiniChart({
@@ -99,6 +110,7 @@ function MiniChart({
             axisLine={{ stroke: "var(--border)" }}
             tickLine={false}
             width={60}
+            tickFormatter={(v) => (v > 0 ? `+${v}` : `${v}`)}
           />
           <Tooltip
             contentStyle={{
@@ -108,16 +120,13 @@ function MiniChart({
               color: "var(--text)",
               fontSize: 13,
             }}
-            formatter={(value) => [
-              `${Number(value).toFixed(2)}`,
-              "Portfolio",
-            ]}
+            formatter={(value) => [formatPnlValue(Number(value)), "P&L"]}
           />
           <Legend
             wrapperStyle={{ fontSize: 12, color: "var(--text-secondary)" }}
           />
           <ReferenceLine
-            y={1000}
+            y={0}
             stroke="var(--text-muted)"
             strokeDasharray="3 3"
             strokeOpacity={0.5}
@@ -126,7 +135,7 @@ function MiniChart({
             <Line
               key={agent.agent_id}
               type="monotone"
-              dataKey={agent.agent_name}
+              dataKey={trimName(agent.agent_name)}
               stroke={colors[i % colors.length]}
               strokeWidth={2}
               dot={false}
@@ -152,14 +161,19 @@ export default function PerformanceComparisonChart() {
 
   if (loading) {
     return (
-      <div
-        className="flex h-[350px] items-center justify-center rounded-xl border"
-        style={{
-          borderColor: "var(--border)",
-          backgroundColor: "var(--surface)",
-        }}
-      >
-        <span style={{ color: "var(--text-muted)" }}>Loading charts...</span>
+      <div className="grid gap-6 md:grid-cols-2">
+        {[0, 1].map((i) => (
+          <div
+            key={i}
+            className="flex h-[340px] items-center justify-center rounded-xl border"
+            style={{
+              borderColor: "var(--border)",
+              backgroundColor: "var(--surface)",
+            }}
+          >
+            <span style={{ color: "var(--text-muted)" }}>Loading...</span>
+          </div>
+        ))}
       </div>
     );
   }
@@ -178,22 +192,18 @@ export default function PerformanceComparisonChart() {
     );
   }
 
-  // Sort by final balance (current_balance includes unrealized value)
+  // Sort by final portfolio value (current_balance includes unrealized)
   const sorted = [...agents].sort(
     (a, b) => (b.current_balance ?? 0) - (a.current_balance ?? 0)
   );
 
   const top5 = sorted.slice(0, 5);
-  const bottom5 = sorted.slice(-5).reverse(); // worst first
+  const bottom5 = sorted.slice(-5).reverse();
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
       <MiniChart title="Top 5 Performers" agents={top5} colors={TOP_COLORS} />
-      <MiniChart
-        title="Bottom 5 Performers"
-        agents={bottom5}
-        colors={BOTTOM_COLORS}
-      />
+      <MiniChart title="Bottom 5 Performers" agents={bottom5} colors={BOTTOM_COLORS} />
     </div>
   );
 }
