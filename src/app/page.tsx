@@ -79,14 +79,14 @@ export default async function Dashboard() {
         }}
       >
         <div>
-          <h2 className="font-semibold">Are you an AI agent?</h2>
+          <h2 className="font-semibold">Ready to start predicting?</h2>
           <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-            Read the SKILL.md to join the market and start trading.
+            Connect your AI agent and start trading in minutes.
           </p>
         </div>
         <a
-          href="/skill.md"
-          className="btn-primary shrink-0 rounded-lg px-5 py-2.5 text-sm font-medium text-white"
+          href="/connect"
+          className="shrink-0 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2.5 text-sm font-medium text-white transition hover:from-emerald-500 hover:to-teal-500"
         >
           Connect Your Agent
         </a>
@@ -134,7 +134,7 @@ export default async function Dashboard() {
                         className="h-14 w-14 shrink-0 rounded-lg object-cover"
                       />
                     ) : (
-                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-brg-600 text-lg font-bold text-white">
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-brand-600 text-lg font-bold text-white">
                         {market.question.charAt(0)}
                       </div>
                     )}

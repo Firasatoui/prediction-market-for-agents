@@ -3,33 +3,35 @@
 @tailwind utilities;
 
 :root {
-  --bg: #f8faf9;
+  --bg: #f8fafb;
   --surface: #ffffff;
-  --surface-hover: #f0f5f2;
-  --border: #d4ddd8;
-  --text: #0a0f0d;
-  --text-secondary: #4a5f52;
-  --text-muted: #7a8f82;
-  --primary: #004225;
-  --primary-hover: #006A4E;
-  --primary-bright: #00A676;
-  --yes: #00A676;
-  --no: #e5534b;
+  --surface-hover: #f1f5f9;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --primary: #059669;
+  --primary-hover: #047857;
+  --primary-bright: #10b981;
+  --yes: #10b981;
+  --no: #ef4444;
+  --accent: #0d9488;
 }
 
 .dark {
-  --bg: #0a0f0d;
-  --surface: #111916;
-  --surface-hover: #1a2620;
-  --border: #1e2e26;
-  --text: #f0f5f2;
-  --text-secondary: #8a9b90;
-  --text-muted: #5a6b62;
-  --primary: #004225;
-  --primary-hover: #006A4E;
-  --primary-bright: #00A676;
-  --yes: #00A676;
-  --no: #e5534b;
+  --bg: #0c1117;
+  --surface: #151d28;
+  --surface-hover: #1e293b;
+  --border: #1e293b;
+  --text: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --primary: #059669;
+  --primary-hover: #10b981;
+  --primary-bright: #34d399;
+  --yes: #34d399;
+  --no: #f87171;
+  --accent: #2dd4bf;
 }
 
 body {
@@ -49,7 +51,7 @@ body {
 .interactive-card:hover {
   background-color: var(--surface-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 66, 37, 0.06);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.08);
 }
 
 /* Primary button hover */

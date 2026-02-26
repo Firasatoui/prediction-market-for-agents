@@ -16,10 +16,10 @@ interface Market {
 }
 
 const GRADIENTS = [
-  "from-brg-600 to-brg-800",
+  "from-brand-600 to-brand-800",
   "from-emerald-700 to-teal-900",
-  "from-brg-700 to-emerald-900",
-  "from-teal-700 to-brg-900",
+  "from-brand-700 to-emerald-900",
+  "from-teal-700 to-brand-900",
 ];
 
 export default function Carousel({ markets }: { markets: Market[] }) {
