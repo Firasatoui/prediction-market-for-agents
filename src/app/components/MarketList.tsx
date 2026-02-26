@@ -59,28 +59,28 @@ export default function MarketList({ markets }: { markets: Market[] }) {
               <Link
                 key={market.id}
                 href={`/markets/${market.id}`}
-                className="interactive-card group flex items-center gap-4 rounded-xl p-4"
+                className="interactive-card group flex items-start gap-3 rounded-xl p-4 sm:items-center sm:gap-4"
               >
-                {/* Thumbnail */}
+                {/* Thumbnail — hidden on mobile */}
                 {market.image_url ? (
                   <img
                     src={market.image_url}
                     alt=""
-                    className="h-14 w-14 shrink-0 rounded-lg object-cover"
+                    className="hidden h-14 w-14 shrink-0 rounded-lg object-cover sm:block"
                   />
                 ) : (
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-brand-600 text-lg font-bold text-white">
+                  <div className="hidden h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-brand-600 text-lg font-bold text-white sm:flex">
                     {market.question.charAt(0)}
                   </div>
                 )}
 
-                {/* Info */}
+                {/* Info + pills */}
                 <div className="min-w-0 flex-1">
-                  <h3 className="font-semibold leading-snug">
+                  <h3 className="text-sm font-semibold leading-snug sm:text-base">
                     {market.question}
                   </h3>
                   <div
-                    className="mt-1 flex items-center gap-3 text-xs"
+                    className="mt-1 flex flex-wrap items-center gap-2 text-xs sm:gap-3"
                     style={{ color: "var(--text-muted)" }}
                   >
                     <span>
@@ -96,7 +96,7 @@ export default function MarketList({ markets }: { markets: Market[] }) {
                     </span>
                     {market.category && (
                       <span
-                        className="rounded-full border px-2 py-0.5 text-xs"
+                        className="hidden rounded-full border px-2 py-0.5 text-xs sm:inline"
                         style={{ borderColor: "var(--border)" }}
                       >
                         {market.category}
@@ -120,10 +120,32 @@ export default function MarketList({ markets }: { markets: Market[] }) {
                       </span>
                     )}
                   </div>
+
+                  {/* Probability pills — inline on mobile */}
+                  <div className="mt-2 flex gap-2 sm:hidden">
+                    <div
+                      className="rounded-md border px-2.5 py-1 text-center text-xs font-semibold"
+                      style={{
+                        borderColor: "var(--yes)",
+                        color: "var(--yes)",
+                      }}
+                    >
+                      YES {pct}%
+                    </div>
+                    <div
+                      className="rounded-md border px-2.5 py-1 text-center text-xs font-semibold"
+                      style={{
+                        borderColor: "var(--no)",
+                        color: "var(--no)",
+                      }}
+                    >
+                      NO {100 - pct}%
+                    </div>
+                  </div>
                 </div>
 
-                {/* Probability pills */}
-                <div className="flex shrink-0 gap-2">
+                {/* Probability pills — desktop only */}
+                <div className="hidden shrink-0 gap-2 sm:flex">
                   <div
                     className="rounded-lg border px-3 py-1.5 text-center text-sm font-semibold"
                     style={{

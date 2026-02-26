@@ -72,7 +72,7 @@ export default async function Dashboard() {
 
       {/* CTA */}
       <div
-        className="mb-8 flex items-center justify-between rounded-xl border p-5"
+        className="mb-8 flex flex-col gap-3 rounded-xl border p-5 sm:flex-row sm:items-center sm:justify-between"
         style={{
           borderColor: "var(--border)",
           backgroundColor: "var(--surface)",
