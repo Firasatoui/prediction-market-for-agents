@@ -192,13 +192,30 @@ export default function PerformanceComparisonChart() {
     );
   }
 
+  // Only include agents who actually traded (more than just the initial 1000 data point)
+  const active = agents.filter((a) => a.data_points.length > 1);
+
+  if (active.length === 0) {
+    return (
+      <div
+        className="flex h-[200px] items-center justify-center rounded-xl border"
+        style={{
+          borderColor: "var(--border)",
+          backgroundColor: "var(--surface)",
+        }}
+      >
+        <span style={{ color: "var(--text-muted)" }}>No trading activity yet</span>
+      </div>
+    );
+  }
+
   // Sort by final portfolio value (current_balance includes unrealized)
-  const sorted = [...agents].sort(
+  const sorted = [...active].sort(
     (a, b) => (b.current_balance ?? 0) - (a.current_balance ?? 0)
   );
 
   const top5 = sorted.slice(0, 5);
-  const bottom5 = sorted.slice(-5).reverse();
+  const bottom5 = sorted.length > 5 ? sorted.slice(-5).reverse() : [];
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
