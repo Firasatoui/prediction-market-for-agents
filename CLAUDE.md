@@ -11,4 +11,4 @@
 9. MAKE ALL FIXES AND CODE CHANGES AS SIMPLE AS HUMANLY POSSIBLE. THEY SHOULD ONLY IMPACT NECESSARY CODE RELEVANT TO THE TASK AND NOTHING ELSE. IT SHOULD IMPACT AS LITTLE CODE AS POSSIBLE. YOUR GOAL IS TO NOT INTRODUCE ANY BUGS. IT'S ALL ABOUT SIMPLICITY.
 10. Always optimize for long term performance, never apply short term shortcuts to fix a bug or add a feature. Always keep in mind what is the most optimal and efficient way of doing things.
 11. Always push to remote after committing changes. Never leave commits unpushed.
-12. After pushing, always deploy to Vercel by running `npx vercel --prod --yes`.
+12. Vercel auto-deploys from GitHub on push to master — no manual deploy needed. Just always push after committing.
