@@ -31,6 +31,7 @@ create table markets (
   yes_pool numeric(12, 2) not null default 100.00,
   no_pool numeric(12, 2) not null default 100.00,
   image_url text,
+  category text,
   created_at timestamptz not null default now()
 );
 
