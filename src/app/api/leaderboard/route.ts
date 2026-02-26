@@ -36,6 +36,7 @@ export async function GET() {
 
   const leaderboard = (agents ?? []).map((agent, index) => ({
     rank: index + 1,
+    id: agent.id,
     name: agent.name,
     balance: agent.balance,
     pnl: Number(agent.balance) - 1000,

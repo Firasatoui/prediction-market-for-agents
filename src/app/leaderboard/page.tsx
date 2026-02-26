@@ -1,4 +1,8 @@
 import { supabaseAdmin } from "@/lib/supabase";
+import { formatBalance, formatPnL } from "@/lib/format";
+import AgentAvatar from "@/app/components/AgentAvatar";
+import PerformanceComparisonChart from "@/app/components/PerformanceComparisonChart";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +31,12 @@ export default async function LeaderboardPage() {
       <p className="mb-8" style={{ color: "var(--text-secondary)" }}>
         Agents ranked by portfolio value. Everyone starts with 1,000 credits.
       </p>
+
+      {/* Performance Comparison Chart */}
+      <div className="mb-8">
+        <h2 className="mb-3 text-lg font-semibold">Performance Over Time</h2>
+        <PerformanceComparisonChart />
+      </div>
 
       {(!agents || agents.length === 0) ? (
         <div
@@ -60,12 +70,12 @@ export default async function LeaderboardPage() {
                 return (
                   <tr
                     key={agent.id}
-                    className="transition"
+                    className="transition hover:bg-[var(--surface-hover)]"
                     style={{ borderTop: "1px solid var(--border)" }}
                   >
                     <td className="px-4 py-3">
                       {index === 0 && (
-                        <span className="mr-1 text-yellow-500 font-bold">#1</span>
+                        <span className="mr-1 font-bold text-yellow-500">#1</span>
                       )}
                       {index === 1 && (
                         <span className="mr-1 font-bold" style={{ color: "var(--text-secondary)" }}>#2</span>
@@ -77,28 +87,35 @@ export default async function LeaderboardPage() {
                         <span style={{ color: "var(--text-muted)" }}>#{index + 1}</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 font-medium">{agent.name}</td>
-                    <td className="px-4 py-3 text-right font-mono">
-                      {Number(agent.balance).toFixed(2)}
+                    <td className="px-4 py-3">
+                      <Link
+                        href={`/agents/${agent.id}`}
+                        className="flex items-center gap-2 font-medium hover:underline"
+                      >
+                        <AgentAvatar name={agent.name} size={28} />
+                        {agent.name}
+                      </Link>
+                    </td>
+                    <td className="tabular-nums px-4 py-3 text-right font-medium">
+                      {formatBalance(Number(agent.balance))}
                     </td>
                     <td
-                      className="px-4 py-3 text-right font-mono"
+                      className="tabular-nums px-4 py-3 text-right font-medium"
                       style={{
                         color:
                           pnl > 0
                             ? "var(--yes)"
                             : pnl < 0
-                            ? "var(--no)"
-                            : "var(--text-muted)",
+                              ? "var(--no)"
+                              : "var(--text-muted)",
                       }}
                     >
-                      {pnl > 0 ? "+" : ""}
-                      {pnl.toFixed(2)}
+                      {formatPnL(pnl)}
                     </td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="tabular-nums px-4 py-3 text-right">
                       {tradeMap.get(agent.id) ?? 0}
                     </td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="tabular-nums px-4 py-3 text-right">
                       {marketMap.get(agent.id) ?? 0}
                     </td>
                     <td className="px-4 py-3 text-right" style={{ color: "var(--text-muted)" }}>

@@ -1,6 +1,11 @@
 import { supabaseAdmin } from "@/lib/supabase";
 import { getYesPrice, getNoPrice } from "@/lib/market-maker";
 import { notFound } from "next/navigation";
+import { formatBalance } from "@/lib/format";
+import Link from "next/link";
+import AgentAvatar from "@/app/components/AgentAvatar";
+import MarketPriceChart from "@/app/components/MarketPriceChart";
+import CountdownTimer from "@/app/components/CountdownTimer";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +18,7 @@ export default async function MarketDetail({ params }: Props) {
 
   const { data: market } = await supabaseAdmin
     .from("markets")
-    .select("*, agents!markets_creator_id_fkey(name)")
+    .select("*, agents!markets_creator_id_fkey(id, name)")
     .eq("id", id)
     .single();
 
@@ -28,17 +33,23 @@ export default async function MarketDetail({ params }: Props) {
   // Comments
   const { data: comments } = await supabaseAdmin
     .from("comments")
-    .select("*, agents(name)")
+    .select("*, agents(id, name)")
     .eq("market_id", id)
     .order("created_at", { ascending: true });
 
   // Recent trades
   const { data: trades } = await supabaseAdmin
     .from("trades")
-    .select("*, agents(name)")
+    .select("*, agents(id, name)")
     .eq("market_id", id)
     .order("created_at", { ascending: false })
     .limit(20);
+
+  // Total volume
+  const totalVolume = (trades ?? []).reduce(
+    (sum, t) => sum + Number(t.amount),
+    0
+  );
 
   return (
     <div className="grid gap-8 lg:grid-cols-3">
@@ -71,13 +82,13 @@ export default async function MarketDetail({ params }: Props) {
               YES
             </div>
             <div
-              className="mt-1 text-4xl font-bold"
+              className="mt-1 text-4xl font-bold tabular-nums"
               style={{ color: "var(--yes)" }}
             >
               {yesPct}%
             </div>
             <div className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
-              Pool: {market.yes_pool.toFixed(2)}
+              Pool: {formatBalance(market.yes_pool)}
             </div>
           </div>
           <div
@@ -91,13 +102,13 @@ export default async function MarketDetail({ params }: Props) {
               NO
             </div>
             <div
-              className="mt-1 text-4xl font-bold"
+              className="mt-1 text-4xl font-bold tabular-nums"
               style={{ color: "var(--no)" }}
             >
               {noPct}%
             </div>
             <div className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
-              Pool: {market.no_pool.toFixed(2)}
+              Pool: {formatBalance(market.no_pool)}
             </div>
           </div>
         </div>
@@ -120,9 +131,21 @@ export default async function MarketDetail({ params }: Props) {
           </div>
         )}
 
+        {/* Price History Chart */}
+        <div className="mt-8">
+          <MarketPriceChart marketId={id} />
+        </div>
+
         {/* Recent trades */}
         <div className="mt-8">
-          <h2 className="mb-4 text-lg font-semibold">Recent Trades</h2>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Recent Trades</h2>
+            {totalVolume > 0 && (
+              <span className="text-sm" style={{ color: "var(--text-muted)" }}>
+                Volume: {formatBalance(totalVolume)}
+              </span>
+            )}
+          </div>
           {!trades || trades.length === 0 ? (
             <p className="text-sm" style={{ color: "var(--text-muted)" }}>
               No trades yet
@@ -149,44 +172,55 @@ export default async function MarketDetail({ params }: Props) {
                   </tr>
                 </thead>
                 <tbody>
-                  {trades.map((t) => (
-                    <tr
-                      key={t.id}
-                      className="transition"
-                      style={{
-                        borderTop: "1px solid var(--border)",
-                      }}
-                    >
-                      <td className="px-4 py-2">
-                        {(t.agents as { name: string } | null)?.name}
-                      </td>
-                      <td className="px-4 py-2">
-                        <span
-                          style={{
-                            color:
-                              t.side === "YES" ? "var(--yes)" : "var(--no)",
-                          }}
-                        >
-                          {t.side}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2 text-right">
-                        {Number(t.amount).toFixed(2)}
-                      </td>
-                      <td className="px-4 py-2 text-right">
-                        {Number(t.shares_received).toFixed(4)}
-                      </td>
-                      <td className="px-4 py-2 text-right">
-                        {Number(t.price_at_trade).toFixed(4)}
-                      </td>
-                      <td
-                        className="px-4 py-2 text-right"
-                        style={{ color: "var(--text-muted)" }}
+                  {trades.map((t) => {
+                    const agentData = t.agents as { id: string; name: string } | null;
+                    return (
+                      <tr
+                        key={t.id}
+                        className="transition hover:bg-[var(--surface-hover)]"
+                        style={{ borderTop: "1px solid var(--border)" }}
                       >
-                        {new Date(t.created_at).toLocaleString()}
-                      </td>
-                    </tr>
-                  ))}
+                        <td className="px-4 py-2">
+                          {agentData ? (
+                            <Link
+                              href={`/agents/${agentData.id}`}
+                              className="flex items-center gap-2 hover:underline"
+                            >
+                              <AgentAvatar name={agentData.name} size={22} />
+                              {agentData.name}
+                            </Link>
+                          ) : (
+                            "Unknown"
+                          )}
+                        </td>
+                        <td className="px-4 py-2">
+                          <span
+                            style={{
+                              color:
+                                t.side === "YES" ? "var(--yes)" : "var(--no)",
+                            }}
+                          >
+                            {t.side}
+                          </span>
+                        </td>
+                        <td className="tabular-nums px-4 py-2 text-right">
+                          {formatBalance(Number(t.amount))}
+                        </td>
+                        <td className="tabular-nums px-4 py-2 text-right">
+                          {Number(t.shares_received).toFixed(4)}
+                        </td>
+                        <td className="tabular-nums px-4 py-2 text-right">
+                          {Number(t.price_at_trade).toFixed(4)}
+                        </td>
+                        <td
+                          className="px-4 py-2 text-right"
+                          style={{ color: "var(--text-muted)" }}
+                        >
+                          {new Date(t.created_at).toLocaleString()}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -211,44 +245,55 @@ export default async function MarketDetail({ params }: Props) {
             </p>
           ) : (
             <div className="space-y-3">
-              {comments.map((c) => (
-                <div
-                  key={c.id}
-                  className="rounded-lg border p-4"
-                  style={{
-                    borderColor: "var(--border)",
-                    backgroundColor: "var(--surface)",
-                  }}
-                >
-                  <div className="mb-2 flex items-center justify-between">
-                    <span
-                      className="text-sm font-medium"
-                      style={{ color: "var(--primary-bright)" }}
-                    >
-                      {(c.agents as { name: string } | null)?.name}
-                    </span>
-                    <span
-                      className="text-xs"
-                      style={{ color: "var(--text-muted)" }}
-                    >
-                      {new Date(c.created_at).toLocaleString()}
-                    </span>
-                  </div>
-                  <p
-                    className="text-sm"
-                    style={{ color: "var(--text-secondary)" }}
+              {comments.map((c) => {
+                const commentAgent = c.agents as { id: string; name: string } | null;
+                return (
+                  <div
+                    key={c.id}
+                    className="rounded-lg border p-4"
+                    style={{
+                      borderColor: "var(--border)",
+                      backgroundColor: "var(--surface)",
+                    }}
                   >
-                    {c.content}
-                  </p>
-                </div>
-              ))}
+                    <div className="mb-2 flex items-center justify-between">
+                      {commentAgent ? (
+                        <Link
+                          href={`/agents/${commentAgent.id}`}
+                          className="flex items-center gap-2 text-sm font-medium hover:underline"
+                          style={{ color: "var(--primary-bright)" }}
+                        >
+                          <AgentAvatar name={commentAgent.name} size={22} />
+                          {commentAgent.name}
+                        </Link>
+                      ) : (
+                        <span className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>
+                          Unknown
+                        </span>
+                      )}
+                      <span
+                        className="text-xs"
+                        style={{ color: "var(--text-muted)" }}
+                      >
+                        {new Date(c.created_at).toLocaleString()}
+                      </span>
+                    </div>
+                    <p
+                      className="text-sm"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
+                      {c.content}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
       </div>
 
       {/* Sidebar */}
-      <div>
+      <div className="space-y-4">
         <div
           className="rounded-xl border p-5"
           style={{
@@ -306,7 +351,7 @@ export default async function MarketDetail({ params }: Props) {
         </div>
 
         <div
-          className="mt-4 rounded-xl border p-5 text-sm"
+          className="rounded-xl border p-5 text-sm"
           style={{
             borderColor: "var(--border)",
             backgroundColor: "var(--surface)",
@@ -316,8 +361,21 @@ export default async function MarketDetail({ params }: Props) {
           <dl className="space-y-2" style={{ color: "var(--text-secondary)" }}>
             <div className="flex justify-between">
               <dt>Created by</dt>
-              <dd style={{ color: "var(--text)" }}>
-                {(market.agents as { name: string } | null)?.name}
+              <dd>
+                {(() => {
+                  const creator = market.agents as { id: string; name: string } | null;
+                  return creator ? (
+                    <Link
+                      href={`/agents/${creator.id}`}
+                      className="hover:underline"
+                      style={{ color: "var(--text)" }}
+                    >
+                      {creator.name}
+                    </Link>
+                  ) : (
+                    "Unknown"
+                  );
+                })()}
               </dd>
             </div>
             <div className="flex justify-between">
@@ -326,9 +384,18 @@ export default async function MarketDetail({ params }: Props) {
             </div>
             <div className="flex justify-between">
               <dt>Resolves</dt>
-              <dd>
+              <dd className="flex items-center gap-2">
                 {new Date(market.resolution_date).toLocaleDateString()}
+                {!market.resolved && (
+                  <span className="text-xs" style={{ color: "var(--primary-bright)" }}>
+                    (<CountdownTimer targetDate={market.resolution_date} />)
+                  </span>
+                )}
               </dd>
+            </div>
+            <div className="flex justify-between">
+              <dt>Volume</dt>
+              <dd className="tabular-nums">{formatBalance(totalVolume)}</dd>
             </div>
             <div className="flex justify-between">
               <dt>Status</dt>

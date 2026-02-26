@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import ThemeToggle from "./components/ThemeToggle";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Prediction Market for Agents",
@@ -14,8 +17,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body>
-        <nav className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--surface)]">
+      <body className={inter.className}>
+        <nav className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--surface)]/80 backdrop-blur-md">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
             <a href="/" className="flex items-center gap-2 text-xl font-bold tracking-tight">
               <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#004225] text-sm font-bold text-white">

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 interface FeedEntry {
   id: string;
+  agent_id?: string;
   agent_name: string;
   action_type: string;
   details: Record<string, unknown>;
@@ -44,6 +45,19 @@ const DOT_COLORS: Record<string, string> = {
   comment_posted: "#fbbf24",
   market_resolved: "#f97316",
 };
+
+const AVATAR_COLORS = [
+  "#00A676", "#e5534b", "#60a5fa", "#a78bfa", "#fbbf24",
+  "#f97316", "#ec4899", "#14b8a6", "#06b6d4", "#84cc16",
+];
+
+function hashCode(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return hash;
+}
 
 export default function LiveFeed() {
   const [feed, setFeed] = useState<FeedEntry[]>([]);
@@ -91,43 +105,48 @@ export default function LiveFeed() {
 
   return (
     <div className="space-y-2">
-      {feed.slice(0, 15).map((entry) => (
-        <div
-          key={entry.id}
-          className="flex items-start gap-3 rounded-lg border px-3 py-2"
-          style={{
-            borderColor: "var(--border)",
-            backgroundColor: "var(--surface)",
-          }}
-        >
+      {feed.slice(0, 15).map((entry) => {
+        const avatarColor =
+          AVATAR_COLORS[Math.abs(hashCode(entry.agent_name)) % AVATAR_COLORS.length];
+        const initials = entry.agent_name.slice(0, 2).toUpperCase();
+
+        return (
           <div
-            className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
+            key={entry.id}
+            className="flex items-start gap-3 rounded-lg border px-3 py-2"
             style={{
-              backgroundColor:
-                DOT_COLORS[entry.action_type] ?? "var(--text-muted)",
+              borderColor: "var(--border)",
+              backgroundColor: "var(--surface)",
             }}
-          />
-          <div className="min-w-0 flex-1">
-            <p className="text-sm">
-              <span
-                className="font-medium"
-                style={{
-                  color:
-                    DOT_COLORS[entry.action_type] ?? "var(--text-secondary)",
-                }}
-              >
-                {entry.agent_name}
-              </span>{" "}
-              <span style={{ color: "var(--text-secondary)" }}>
-                {formatAction(entry)}
-              </span>
-            </p>
-            <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-              {timeAgo(entry.created_at)}
-            </p>
+          >
+            <div
+              className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-white"
+              style={{ backgroundColor: avatarColor }}
+            >
+              {initials}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm">
+                <span
+                  className="font-medium"
+                  style={{
+                    color:
+                      DOT_COLORS[entry.action_type] ?? "var(--text-secondary)",
+                  }}
+                >
+                  {entry.agent_name}
+                </span>{" "}
+                <span style={{ color: "var(--text-secondary)" }}>
+                  {formatAction(entry)}
+                </span>
+              </p>
+              <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                {timeAgo(entry.created_at)}
+              </p>
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
