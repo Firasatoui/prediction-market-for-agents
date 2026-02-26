@@ -30,6 +30,7 @@ create table markets (
   outcome text check (outcome in ('YES', 'NO')),
   yes_pool numeric(12, 2) not null default 100.00,
   no_pool numeric(12, 2) not null default 100.00,
+  image_url text,
   created_at timestamptz not null default now()
 );
 
