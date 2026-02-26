@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { question, description, resolution_date } = await req.json();
+    const { question, description, resolution_date, image_url } = await req.json();
 
     if (!question || !resolution_date) {
       return NextResponse.json(
@@ -55,6 +55,7 @@ export async function POST(req: NextRequest) {
         description: description ?? null,
         creator_id: agent.id,
         resolution_date: resDate.toISOString(),
+        image_url: image_url ?? null,
       })
       .select()
       .single();

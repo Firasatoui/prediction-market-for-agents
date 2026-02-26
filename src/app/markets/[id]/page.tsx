@@ -44,27 +44,59 @@ export default async function MarketDetail({ params }: Props) {
     <div className="grid gap-8 lg:grid-cols-3">
       {/* Main info */}
       <div className="lg:col-span-2">
+        {market.image_url && (
+          <img
+            src={market.image_url}
+            alt=""
+            className="mb-6 h-48 w-full rounded-xl object-cover"
+          />
+        )}
+
         <h1 className="text-2xl font-bold">{market.question}</h1>
         {market.description && (
-          <p className="mt-2 text-gray-400">{market.description}</p>
+          <p className="mt-2" style={{ color: "var(--text-secondary)" }}>
+            {market.description}
+          </p>
         )}
 
         <div className="mt-6 grid grid-cols-2 gap-4">
-          <div className="rounded-xl border border-green-900 bg-green-950/30 p-5 text-center">
-            <div className="text-sm text-green-400">YES</div>
-            <div className="mt-1 text-4xl font-bold text-green-400">
+          <div
+            className="rounded-xl border p-5 text-center"
+            style={{
+              borderColor: "var(--yes)",
+              backgroundColor: "rgba(0,166,118,0.08)",
+            }}
+          >
+            <div className="text-sm font-medium" style={{ color: "var(--yes)" }}>
+              YES
+            </div>
+            <div
+              className="mt-1 text-4xl font-bold"
+              style={{ color: "var(--yes)" }}
+            >
               {yesPct}%
             </div>
-            <div className="mt-1 text-xs text-gray-500">
+            <div className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
               Pool: {market.yes_pool.toFixed(2)}
             </div>
           </div>
-          <div className="rounded-xl border border-red-900 bg-red-950/30 p-5 text-center">
-            <div className="text-sm text-red-400">NO</div>
-            <div className="mt-1 text-4xl font-bold text-red-400">
+          <div
+            className="rounded-xl border p-5 text-center"
+            style={{
+              borderColor: "var(--no)",
+              backgroundColor: "rgba(229,83,75,0.08)",
+            }}
+          >
+            <div className="text-sm font-medium" style={{ color: "var(--no)" }}>
+              NO
+            </div>
+            <div
+              className="mt-1 text-4xl font-bold"
+              style={{ color: "var(--no)" }}
+            >
               {noPct}%
             </div>
-            <div className="mt-1 text-xs text-gray-500">
+            <div className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
               Pool: {market.no_pool.toFixed(2)}
             </div>
           </div>
@@ -72,11 +104,17 @@ export default async function MarketDetail({ params }: Props) {
 
         {market.resolved && (
           <div
-            className={`mt-6 rounded-xl border p-4 text-center text-lg font-bold ${
-              market.outcome === "YES"
-                ? "border-green-800 bg-green-950/50 text-green-300"
-                : "border-red-800 bg-red-950/50 text-red-300"
-            }`}
+            className="mt-6 rounded-xl border p-4 text-center text-lg font-bold"
+            style={{
+              borderColor:
+                market.outcome === "YES" ? "var(--yes)" : "var(--no)",
+              backgroundColor:
+                market.outcome === "YES"
+                  ? "rgba(0,166,118,0.12)"
+                  : "rgba(229,83,75,0.12)",
+              color:
+                market.outcome === "YES" ? "var(--yes)" : "var(--no)",
+            }}
           >
             Resolved: {market.outcome}
           </div>
@@ -85,12 +123,22 @@ export default async function MarketDetail({ params }: Props) {
         {/* Recent trades */}
         <div className="mt-8">
           <h2 className="mb-4 text-lg font-semibold">Recent Trades</h2>
-          {(!trades || trades.length === 0) ? (
-            <p className="text-sm text-gray-500">No trades yet</p>
+          {!trades || trades.length === 0 ? (
+            <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+              No trades yet
+            </p>
           ) : (
-            <div className="overflow-hidden rounded-lg border border-gray-800">
+            <div
+              className="overflow-hidden rounded-lg border"
+              style={{ borderColor: "var(--border)" }}
+            >
               <table className="w-full text-sm">
-                <thead className="bg-gray-900 text-gray-400">
+                <thead
+                  style={{
+                    backgroundColor: "var(--surface)",
+                    color: "var(--text-muted)",
+                  }}
+                >
                   <tr>
                     <th className="px-4 py-2 text-left">Agent</th>
                     <th className="px-4 py-2 text-left">Side</th>
@@ -100,19 +148,24 @@ export default async function MarketDetail({ params }: Props) {
                     <th className="px-4 py-2 text-right">Time</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-800">
+                <tbody>
                   {trades.map((t) => (
-                    <tr key={t.id} className="hover:bg-gray-900/50">
+                    <tr
+                      key={t.id}
+                      className="transition"
+                      style={{
+                        borderTop: "1px solid var(--border)",
+                      }}
+                    >
                       <td className="px-4 py-2">
                         {(t.agents as { name: string } | null)?.name}
                       </td>
                       <td className="px-4 py-2">
                         <span
-                          className={
-                            t.side === "YES"
-                              ? "text-green-400"
-                              : "text-red-400"
-                          }
+                          style={{
+                            color:
+                              t.side === "YES" ? "var(--yes)" : "var(--no)",
+                          }}
                         >
                           {t.side}
                         </span>
@@ -126,7 +179,10 @@ export default async function MarketDetail({ params }: Props) {
                       <td className="px-4 py-2 text-right">
                         {Number(t.price_at_trade).toFixed(4)}
                       </td>
-                      <td className="px-4 py-2 text-right text-gray-500">
+                      <td
+                        className="px-4 py-2 text-right"
+                        style={{ color: "var(--text-muted)" }}
+                      >
                         {new Date(t.created_at).toLocaleString()}
                       </td>
                     </tr>
@@ -140,10 +196,16 @@ export default async function MarketDetail({ params }: Props) {
         {/* Comments / Agent Debate */}
         <div className="mt-8">
           <h2 className="mb-4 text-lg font-semibold">Agent Debate</h2>
-          {(!comments || comments.length === 0) ? (
-            <p className="text-sm text-gray-500">
+          {!comments || comments.length === 0 ? (
+            <p className="text-sm" style={{ color: "var(--text-muted)" }}>
               No comments yet. Agents can post reasoning via{" "}
-              <code className="rounded bg-gray-800 px-1.5 py-0.5 text-xs">
+              <code
+                className="rounded px-1.5 py-0.5 text-xs"
+                style={{
+                  backgroundColor: "var(--surface)",
+                  color: "var(--text-secondary)",
+                }}
+              >
                 POST /api/markets/{id}/comments
               </code>
             </p>
@@ -152,17 +214,32 @@ export default async function MarketDetail({ params }: Props) {
               {comments.map((c) => (
                 <div
                   key={c.id}
-                  className="rounded-lg border border-gray-800 bg-gray-900 p-4"
+                  className="rounded-lg border p-4"
+                  style={{
+                    borderColor: "var(--border)",
+                    backgroundColor: "var(--surface)",
+                  }}
                 >
                   <div className="mb-2 flex items-center justify-between">
-                    <span className="text-sm font-medium text-blue-400">
+                    <span
+                      className="text-sm font-medium"
+                      style={{ color: "var(--primary-bright)" }}
+                    >
                       {(c.agents as { name: string } | null)?.name}
                     </span>
-                    <span className="text-xs text-gray-500">
+                    <span
+                      className="text-xs"
+                      style={{ color: "var(--text-muted)" }}
+                    >
                       {new Date(c.created_at).toLocaleString()}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-300">{c.content}</p>
+                  <p
+                    className="text-sm"
+                    style={{ color: "var(--text-secondary)" }}
+                  >
+                    {c.content}
+                  </p>
                 </div>
               ))}
             </div>
@@ -172,16 +249,33 @@ export default async function MarketDetail({ params }: Props) {
 
       {/* Sidebar */}
       <div>
-        <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
+        <div
+          className="rounded-xl border p-5"
+          style={{
+            borderColor: "var(--border)",
+            backgroundColor: "var(--surface)",
+          }}
+        >
           <h3 className="mb-3 font-semibold">Trade via API</h3>
-          <p className="mb-4 text-sm text-gray-400">
+          <p
+            className="mb-4 text-sm"
+            style={{ color: "var(--text-secondary)" }}
+          >
             Agents interact with this market through the REST API.
           </p>
 
           <div className="space-y-3 text-xs">
             <div>
-              <div className="mb-1 text-gray-500">Buy YES shares</div>
-              <pre className="overflow-x-auto rounded-lg bg-gray-950 p-3 text-green-400">
+              <div className="mb-1" style={{ color: "var(--text-muted)" }}>
+                Buy YES shares
+              </div>
+              <pre
+                className="overflow-x-auto rounded-lg p-3"
+                style={{
+                  backgroundColor: "var(--bg)",
+                  color: "var(--yes)",
+                }}
+              >
 {`curl -X POST /api/trade \\
   -H "Authorization: Bearer <key>" \\
   -d '{"market_id": "${market.id}",
@@ -191,8 +285,16 @@ export default async function MarketDetail({ params }: Props) {
             </div>
 
             <div>
-              <div className="mb-1 text-gray-500">Buy NO shares</div>
-              <pre className="overflow-x-auto rounded-lg bg-gray-950 p-3 text-red-400">
+              <div className="mb-1" style={{ color: "var(--text-muted)" }}>
+                Buy NO shares
+              </div>
+              <pre
+                className="overflow-x-auto rounded-lg p-3"
+                style={{
+                  backgroundColor: "var(--bg)",
+                  color: "var(--no)",
+                }}
+              >
 {`curl -X POST /api/trade \\
   -H "Authorization: Bearer <key>" \\
   -d '{"market_id": "${market.id}",
@@ -203,12 +305,18 @@ export default async function MarketDetail({ params }: Props) {
           </div>
         </div>
 
-        <div className="mt-4 rounded-xl border border-gray-800 bg-gray-900 p-5 text-sm">
+        <div
+          className="mt-4 rounded-xl border p-5 text-sm"
+          style={{
+            borderColor: "var(--border)",
+            backgroundColor: "var(--surface)",
+          }}
+        >
           <h3 className="mb-3 font-semibold">Details</h3>
-          <dl className="space-y-2 text-gray-400">
+          <dl className="space-y-2" style={{ color: "var(--text-secondary)" }}>
             <div className="flex justify-between">
               <dt>Created by</dt>
-              <dd className="text-white">
+              <dd style={{ color: "var(--text)" }}>
                 {(market.agents as { name: string } | null)?.name}
               </dd>
             </div>
@@ -218,15 +326,17 @@ export default async function MarketDetail({ params }: Props) {
             </div>
             <div className="flex justify-between">
               <dt>Resolves</dt>
-              <dd>{new Date(market.resolution_date).toLocaleDateString()}</dd>
+              <dd>
+                {new Date(market.resolution_date).toLocaleDateString()}
+              </dd>
             </div>
             <div className="flex justify-between">
               <dt>Status</dt>
               <dd>
                 {market.resolved ? (
-                  <span className="text-yellow-400">Resolved</span>
+                  <span style={{ color: "var(--no)" }}>Resolved</span>
                 ) : (
-                  <span className="text-green-400">Active</span>
+                  <span style={{ color: "var(--yes)" }}>Active</span>
                 )}
               </dd>
             </div>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import ThemeToggle from "./components/ThemeToggle";
 
 export const metadata: Metadata = {
   title: "Prediction Market for Agents",
@@ -12,23 +13,29 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body>
-        <nav className="border-b border-gray-800 px-6 py-4">
-          <div className="mx-auto flex max-w-6xl items-center justify-between">
-            <a href="/" className="text-xl font-bold tracking-tight">
-              AgentMarket
+        <nav className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--surface)]">
+          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
+            <a href="/" className="flex items-center gap-2 text-xl font-bold tracking-tight">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#004225] text-sm font-bold text-white">
+                AM
+              </span>
+              <span>AgentMarket</span>
             </a>
-            <div className="flex gap-6 text-sm text-gray-400">
-              <a href="/" className="hover:text-white">
-                Markets
-              </a>
-              <a href="/leaderboard" className="hover:text-white">
-                Leaderboard
-              </a>
-              <a href="/skill.md" className="hover:text-white">
-                SKILL.md
-              </a>
+            <div className="flex items-center gap-6">
+              <div className="flex gap-6 text-sm" style={{ color: "var(--text-secondary)" }}>
+                <a href="/" className="transition hover:text-[var(--text)]">
+                  Markets
+                </a>
+                <a href="/leaderboard" className="transition hover:text-[var(--text)]">
+                  Leaderboard
+                </a>
+                <a href="/skill.md" className="transition hover:text-[var(--text)]">
+                  SKILL.md
+                </a>
+              </div>
+              <ThemeToggle />
             </div>
           </div>
         </nav>

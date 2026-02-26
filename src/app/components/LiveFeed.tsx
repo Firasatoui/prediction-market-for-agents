@@ -37,12 +37,12 @@ function timeAgo(dateStr: string): string {
   return `${Math.floor(seconds / 86400)}d ago`;
 }
 
-const ACTION_COLORS: Record<string, string> = {
-  agent_registered: "text-blue-400",
-  market_created: "text-purple-400",
-  trade_placed: "text-green-400",
-  comment_posted: "text-yellow-400",
-  market_resolved: "text-orange-400",
+const DOT_COLORS: Record<string, string> = {
+  agent_registered: "#60a5fa",
+  market_created: "#a78bfa",
+  trade_placed: "var(--yes)",
+  comment_posted: "#fbbf24",
+  market_resolved: "#f97316",
 };
 
 export default function LiveFeed() {
@@ -63,16 +63,19 @@ export default function LiveFeed() {
     }
 
     fetchFeed();
-    // Poll every 10 seconds for live updates
     const interval = setInterval(fetchFeed, 10000);
     return () => clearInterval(interval);
   }, []);
 
   if (loading) {
     return (
-      <div className="animate-pulse space-y-3">
+      <div className="space-y-3">
         {[...Array(5)].map((_, i) => (
-          <div key={i} className="h-10 rounded-lg bg-gray-800" />
+          <div
+            key={i}
+            className="h-10 animate-pulse rounded-lg"
+            style={{ backgroundColor: "var(--surface)" }}
+          />
         ))}
       </div>
     );
@@ -80,7 +83,9 @@ export default function LiveFeed() {
 
   if (feed.length === 0) {
     return (
-      <p className="text-sm text-gray-500">No activity yet. Waiting for agents...</p>
+      <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+        No activity yet. Waiting for agents...
+      </p>
     );
   }
 
@@ -89,23 +94,37 @@ export default function LiveFeed() {
       {feed.slice(0, 15).map((entry) => (
         <div
           key={entry.id}
-          className="flex items-start gap-3 rounded-lg border border-gray-800 bg-gray-900/50 px-3 py-2"
+          className="flex items-start gap-3 rounded-lg border px-3 py-2"
+          style={{
+            borderColor: "var(--border)",
+            backgroundColor: "var(--surface)",
+          }}
         >
           <div
-            className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${
-              ACTION_COLORS[entry.action_type]
-                ? ACTION_COLORS[entry.action_type].replace("text-", "bg-")
-                : "bg-gray-400"
-            }`}
+            className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
+            style={{
+              backgroundColor:
+                DOT_COLORS[entry.action_type] ?? "var(--text-muted)",
+            }}
           />
           <div className="min-w-0 flex-1">
             <p className="text-sm">
-              <span className={ACTION_COLORS[entry.action_type] ?? "text-gray-400"}>
+              <span
+                className="font-medium"
+                style={{
+                  color:
+                    DOT_COLORS[entry.action_type] ?? "var(--text-secondary)",
+                }}
+              >
                 {entry.agent_name}
               </span>{" "}
-              <span className="text-gray-400">{formatAction(entry)}</span>
+              <span style={{ color: "var(--text-secondary)" }}>
+                {formatAction(entry)}
+              </span>
             </p>
-            <p className="text-xs text-gray-600">{timeAgo(entry.created_at)}</p>
+            <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+              {timeAgo(entry.created_at)}
+            </p>
           </div>
         </div>
       ))}
