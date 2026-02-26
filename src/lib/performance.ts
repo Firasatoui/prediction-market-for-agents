@@ -112,10 +112,40 @@ export async function computeAgentPerformance(
     });
   }
 
+  // Add unrealized position value from unresolved markets as final "now" point
+  const { data: unresolvedMarkets } = await supabaseAdmin
+    .from("markets")
+    .select("id, yes_pool, no_pool")
+    .eq("resolved", false);
+
+  const unresolvedPoolMap = new Map<string, { yes_pool: number; no_pool: number }>();
+  for (const m of unresolvedMarkets ?? []) {
+    unresolvedPoolMap.set(m.id, { yes_pool: m.yes_pool, no_pool: m.no_pool });
+  }
+
+  let unrealizedValue = 0;
+  for (const pos of positions ?? []) {
+    const pool = unresolvedPoolMap.get(pos.market_id);
+    if (!pool) continue;
+    const total = pool.yes_pool + pool.no_pool;
+    if (total === 0) continue;
+    const yesPrice = pool.no_pool / total;
+    const noPrice = pool.yes_pool / total;
+    unrealizedValue += Number(pos.yes_shares) * yesPrice + Number(pos.no_shares) * noPrice;
+  }
+
+  if (unrealizedValue > 0) {
+    const portfolioBalance = Math.round((runningBalance + unrealizedValue) * 100) / 100;
+    dataPoints.push({
+      timestamp: new Date().toISOString(),
+      balance: portfolioBalance,
+    });
+  }
+
   return {
     agent_id: agent.id,
     agent_name: agent.name,
-    current_balance: Number(agent.balance),
+    current_balance: Number(agent.balance) + unrealizedValue,
     data_points: dataPoints,
   };
 }

@@ -13,7 +13,7 @@ export default async function LeaderboardPage() {
     .order("balance", { ascending: false });
 
   const { data: trades } = await supabaseAdmin.from("trades").select("agent_id");
-  const { data: markets } = await supabaseAdmin.from("markets").select("creator_id");
+  const { data: markets } = await supabaseAdmin.from("markets").select("id, creator_id, yes_pool, no_pool, resolved");
 
   const tradeMap = new Map<string, number>();
   for (const t of trades ?? []) {
@@ -25,11 +25,42 @@ export default async function LeaderboardPage() {
     marketMap.set(m.creator_id, (marketMap.get(m.creator_id) ?? 0) + 1);
   }
 
+  // Compute unrealized position value for each agent
+  const { data: positions } = await supabaseAdmin
+    .from("positions")
+    .select("agent_id, market_id, yes_shares, no_shares");
+
+  const unresolvedMarkets = new Map<string, { yes_pool: number; no_pool: number }>();
+  for (const m of markets ?? []) {
+    if (!m.resolved) {
+      unresolvedMarkets.set(m.id, { yes_pool: m.yes_pool, no_pool: m.no_pool });
+    }
+  }
+
+  const unrealizedMap = new Map<string, number>();
+  for (const pos of positions ?? []) {
+    const pool = unresolvedMarkets.get(pos.market_id);
+    if (!pool) continue; // resolved market — already paid out
+    const total = pool.yes_pool + pool.no_pool;
+    if (total === 0) continue;
+    const yesPrice = pool.no_pool / total;
+    const noPrice = pool.yes_pool / total;
+    const value = Number(pos.yes_shares) * yesPrice + Number(pos.no_shares) * noPrice;
+    unrealizedMap.set(pos.agent_id, (unrealizedMap.get(pos.agent_id) ?? 0) + value);
+  }
+
+  // Sort agents by portfolio value (cash + unrealized) instead of just cash
+  const agentsSorted = [...(agents ?? [])].sort((a, b) => {
+    const portfolioA = Number(a.balance) + (unrealizedMap.get(a.id) ?? 0);
+    const portfolioB = Number(b.balance) + (unrealizedMap.get(b.id) ?? 0);
+    return portfolioB - portfolioA;
+  });
+
   return (
     <div>
       <h1 className="mb-2 text-3xl font-bold">Leaderboard</h1>
       <p className="mb-8" style={{ color: "var(--text-secondary)" }}>
-        Agents ranked by portfolio value. Everyone starts with 1,000 credits.
+        Agents ranked by portfolio value (cash + open positions). Everyone starts with 1,000 credits.
       </p>
 
       {/* Performance Comparison Chart */}
@@ -38,7 +69,7 @@ export default async function LeaderboardPage() {
         <PerformanceComparisonChart />
       </div>
 
-      {(!agents || agents.length === 0) ? (
+      {(!agentsSorted || agentsSorted.length === 0) ? (
         <div
           className="rounded-xl border border-dashed p-12 text-center"
           style={{ borderColor: "var(--border)" }}
@@ -57,16 +88,19 @@ export default async function LeaderboardPage() {
               <tr>
                 <th className="px-4 py-3 text-left">Rank</th>
                 <th className="px-4 py-3 text-left">Agent</th>
-                <th className="px-4 py-3 text-right">Balance</th>
+                <th className="px-4 py-3 text-right">Portfolio</th>
                 <th className="px-4 py-3 text-right">P&L</th>
+                <th className="px-4 py-3 text-right">Cash</th>
                 <th className="px-4 py-3 text-right">Trades</th>
                 <th className="px-4 py-3 text-right">Markets</th>
                 <th className="px-4 py-3 text-right">Joined</th>
               </tr>
             </thead>
             <tbody>
-              {agents.map((agent, index) => {
-                const pnl = Number(agent.balance) - 1000;
+              {agentsSorted.map((agent, index) => {
+                const unrealized = unrealizedMap.get(agent.id) ?? 0;
+                const portfolio = Number(agent.balance) + unrealized;
+                const pnl = portfolio - 1000;
                 return (
                   <tr
                     key={agent.id}
@@ -97,7 +131,7 @@ export default async function LeaderboardPage() {
                       </Link>
                     </td>
                     <td className="tabular-nums px-4 py-3 text-right font-medium">
-                      {formatBalance(Number(agent.balance))}
+                      {formatBalance(portfolio)}
                     </td>
                     <td
                       className="tabular-nums px-4 py-3 text-right font-medium"
@@ -111,6 +145,9 @@ export default async function LeaderboardPage() {
                       }}
                     >
                       {formatPnL(pnl)}
+                    </td>
+                    <td className="tabular-nums px-4 py-3 text-right" style={{ color: "var(--text-muted)" }}>
+                      {formatBalance(Number(agent.balance))}
                     </td>
                     <td className="tabular-nums px-4 py-3 text-right">
                       {tradeMap.get(agent.id) ?? 0}
