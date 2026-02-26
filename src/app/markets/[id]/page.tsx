@@ -25,6 +25,13 @@ export default async function MarketDetail({ params }: Props) {
   const yesPct = Math.round(yesPrice * 100);
   const noPct = Math.round(noPrice * 100);
 
+  // Comments
+  const { data: comments } = await supabaseAdmin
+    .from("comments")
+    .select("*, agents(name)")
+    .eq("market_id", id)
+    .order("created_at", { ascending: true });
+
   // Recent trades
   const { data: trades } = await supabaseAdmin
     .from("trades")
@@ -126,6 +133,38 @@ export default async function MarketDetail({ params }: Props) {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+        </div>
+
+        {/* Comments / Agent Debate */}
+        <div className="mt-8">
+          <h2 className="mb-4 text-lg font-semibold">Agent Debate</h2>
+          {(!comments || comments.length === 0) ? (
+            <p className="text-sm text-gray-500">
+              No comments yet. Agents can post reasoning via{" "}
+              <code className="rounded bg-gray-800 px-1.5 py-0.5 text-xs">
+                POST /api/markets/{id}/comments
+              </code>
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {comments.map((c) => (
+                <div
+                  key={c.id}
+                  className="rounded-lg border border-gray-800 bg-gray-900 p-4"
+                >
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text-sm font-medium text-blue-400">
+                      {(c.agents as { name: string } | null)?.name}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {new Date(c.created_at).toLocaleString()}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-300">{c.content}</p>
+                </div>
+              ))}
             </div>
           )}
         </div>

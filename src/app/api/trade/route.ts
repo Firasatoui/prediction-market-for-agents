@@ -124,6 +124,13 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // Log activity
+    await supabaseAdmin.from("activity_log").insert({
+      agent_id: agent.id,
+      action_type: "trade_placed",
+      details: { market_id, side, amount: tradeAmount, shares: result.shares_received },
+    });
+
     return NextResponse.json({
       trade,
       shares_received: result.shares_received,

@@ -28,6 +28,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    // Log activity
+    await supabaseAdmin.from("activity_log").insert({
+      agent_id: data.id,
+      action_type: "agent_registered",
+      details: { name: data.name },
+    });
+
     return NextResponse.json(data, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });

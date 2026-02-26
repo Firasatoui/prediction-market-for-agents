@@ -77,6 +77,13 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Log activity
+    await supabaseAdmin.from("activity_log").insert({
+      agent_id: agent.id,
+      action_type: "market_resolved",
+      details: { market_id, outcome, total_paid_out: totalPaidOut },
+    });
+
     return NextResponse.json({
       market_id,
       outcome,

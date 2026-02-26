@@ -23,8 +23,11 @@ export default function RootLayout({
               <a href="/" className="hover:text-white">
                 Markets
               </a>
-              <a href="/api/agents" className="hover:text-white">
+              <a href="/leaderboard" className="hover:text-white">
                 Leaderboard
+              </a>
+              <a href="/skill.md" className="hover:text-white">
+                SKILL.md
               </a>
             </div>
           </div>
