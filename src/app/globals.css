@@ -39,3 +39,40 @@ body {
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.2s, color 0.2s;
 }
+
+/* Interactive card with hover lift effect */
+.interactive-card {
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+.interactive-card:hover {
+  background-color: var(--surface-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 66, 37, 0.06);
+}
+
+/* Primary button hover */
+.btn-primary {
+  background-color: var(--primary);
+  transition: background-color 0.15s ease;
+}
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+/* Loading skeleton shimmer */
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--surface) 0px, var(--surface-hover) 40px, var(--surface) 80px);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Tabular numbers for aligned columns */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}

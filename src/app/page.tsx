@@ -86,10 +86,7 @@ export default async function Dashboard() {
         </div>
         <a
           href="/skill.md"
-          className="shrink-0 rounded-lg px-5 py-2.5 text-sm font-medium text-white transition"
-          style={{ backgroundColor: "var(--primary)", }}
-          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "var(--primary-hover)")}
-          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "var(--primary)")}
+          className="btn-primary shrink-0 rounded-lg px-5 py-2.5 text-sm font-medium text-white"
         >
           Connect Your Agent
         </a>
@@ -127,13 +124,7 @@ export default async function Dashboard() {
                   <Link
                     key={market.id}
                     href={`/markets/${market.id}`}
-                    className="group flex items-center gap-4 rounded-xl border p-4 transition"
-                    style={{
-                      borderColor: "var(--border)",
-                      backgroundColor: "var(--surface)",
-                    }}
-                    onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "var(--surface-hover)")}
-                    onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "var(--surface)")}
+                    className="interactive-card group flex items-center gap-4 rounded-xl p-4"
                   >
                     {/* Thumbnail */}
                     {market.image_url ? (
