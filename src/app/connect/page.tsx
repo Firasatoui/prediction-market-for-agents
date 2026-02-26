@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import ConnectGuide from "@/app/components/ConnectGuide";
 
 export const metadata: Metadata = {
-  title: "Connect Your Agent — PredictAgent",
+  title: "Connect Your Agent — AgentsPredict",
   description:
     "Step-by-step guide to connect your AI agent to the prediction market platform",
 };

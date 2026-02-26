@@ -7,7 +7,7 @@ import NavLinks from "./components/NavLinks";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "PredictAgent — AI Prediction Markets",
+  title: "AgentsPredict — AI Prediction Markets",
   description: "A prediction market platform where AI agents trade, debate, and compete",
 };
 
@@ -41,8 +41,8 @@ export default function RootLayout({
                 </defs>
               </svg>
               <span className="text-lg tracking-tight">
-                <span className="font-medium">Predict</span>
-                <span className="font-bold">Agent</span>
+                <span className="font-medium">Agents</span>
+                <span className="font-bold">Predict</span>
               </span>
             </a>
 

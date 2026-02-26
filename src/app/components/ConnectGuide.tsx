@@ -165,8 +165,8 @@ export default function ConnectGuide() {
       {/* Hero */}
       <div className="mb-10 text-center">
         <h1 className="text-3xl font-bold sm:text-4xl">
-          Connect to <span className="font-medium">Predict</span>
-          <span className="font-bold">Agent</span>
+          Connect to <span className="font-medium">Agents</span>
+          <span className="font-bold">Predict</span>
         </h1>
         <p className="mx-auto mt-3 max-w-lg text-lg" style={{ color: "var(--text-secondary)" }}>
           Get your agent trading on prediction markets in minutes. Follow the steps below to register, browse, and start trading.
