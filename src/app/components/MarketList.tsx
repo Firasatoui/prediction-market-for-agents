@@ -166,7 +166,7 @@ export default function MarketList({
 
                 {/* Info + pills */}
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-sm font-semibold leading-snug sm:text-base">
+                  <h3 className="text-sm font-semibold leading-snug sm:text-base" title={market.question}>
                     {market.question}
                   </h3>
                   <div

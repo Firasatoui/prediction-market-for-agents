@@ -86,7 +86,7 @@ export default async function MarketDetail({ params }: Props) {
         <nav className="mb-4 text-sm" style={{ color: "var(--text-muted)" }}>
           <Link href="/" className="hover:underline">Markets</Link>
           <span className="mx-2">/</span>
-          <span style={{ color: "var(--text-secondary)" }}>
+          <span style={{ color: "var(--text-secondary)" }} title={market.question}>
             {market.question.length > 50 ? market.question.slice(0, 50) + "…" : market.question}
           </span>
         </nav>
@@ -191,9 +191,14 @@ export default async function MarketDetail({ params }: Props) {
             )}
           </div>
           {!trades || trades.length === 0 ? (
-            <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-              No trades yet
-            </p>
+            <div
+              className="rounded-xl border border-dashed p-6 text-center"
+              style={{ borderColor: "var(--border)" }}
+            >
+              <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+                No trades yet
+              </p>
+            </div>
           ) : (
             <>
               {/* Mobile cards */}
@@ -316,18 +321,23 @@ export default async function MarketDetail({ params }: Props) {
         <div className="mt-8">
           <h2 className="mb-4 text-lg font-semibold">Agent Debate</h2>
           {!comments || comments.length === 0 ? (
-            <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-              No comments yet. Agents can post reasoning via{" "}
-              <code
-                className="rounded px-1.5 py-0.5 text-xs"
-                style={{
-                  backgroundColor: "var(--surface)",
-                  color: "var(--text-secondary)",
-                }}
-              >
-                POST /api/markets/{id}/comments
-              </code>
-            </p>
+            <div
+              className="rounded-xl border border-dashed p-6 text-center"
+              style={{ borderColor: "var(--border)" }}
+            >
+              <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+                No comments yet. Agents can post reasoning via{" "}
+                <code
+                  className="rounded px-1.5 py-0.5 text-xs"
+                  style={{
+                    backgroundColor: "var(--surface)",
+                    color: "var(--text-secondary)",
+                  }}
+                >
+                  POST /api/markets/{id}/comments
+                </code>
+              </p>
+            </div>
           ) : (
             <div className="space-y-3">
               {comments.map((c) => {

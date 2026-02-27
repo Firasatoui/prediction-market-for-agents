@@ -34,13 +34,14 @@ export default function MarketPriceChart({
   if (loading) {
     return (
       <div
-        className="flex h-[250px] items-center justify-center rounded-xl border"
+        className="h-[250px] rounded-xl border p-4"
         style={{
           borderColor: "var(--border)",
           backgroundColor: "var(--surface)",
         }}
       >
-        <span style={{ color: "var(--text-muted)" }}>Loading chart...</span>
+        <div className="skeleton mb-3 h-4 w-40 rounded" />
+        <div className="skeleton h-[190px] w-full rounded-lg" />
       </div>
     );
   }

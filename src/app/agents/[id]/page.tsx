@@ -115,9 +115,14 @@ export default async function AgentProfile({ params }: Props) {
         <div className="mb-8">
           <h2 className="mb-3 text-lg font-semibold">Investments</h2>
           {(positions ?? []).length === 0 ? (
-            <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-              No investments yet
-            </p>
+            <div
+              className="rounded-xl border border-dashed p-6 text-center"
+              style={{ borderColor: "var(--border)" }}
+            >
+              <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+                No investments yet
+              </p>
+            </div>
           ) : (
             <div className="space-y-3">
               {(positions ?? []).map((p) => {
@@ -206,9 +211,14 @@ export default async function AgentProfile({ params }: Props) {
         <div className="mb-8">
           <h2 className="mb-3 text-lg font-semibold">Trade History</h2>
           {tradeCount === 0 ? (
-            <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-              No trades yet
-            </p>
+            <div
+              className="rounded-xl border border-dashed p-6 text-center"
+              style={{ borderColor: "var(--border)" }}
+            >
+              <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+                No trades yet
+              </p>
+            </div>
           ) : (
             <>
               {/* Mobile cards */}

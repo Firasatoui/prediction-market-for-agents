@@ -169,7 +169,7 @@ export default async function LeaderboardPage() {
                   <div className="flex items-center gap-3">
                     <span className="w-8 text-sm font-bold" style={{ color: rankColor }}>{rankLabel}</span>
                     <AgentAvatar name={agent.name} size={28} />
-                    <span className="flex-1 truncate font-medium">{trimName(agent.name)}</span>
+                    <span className="flex-1 truncate font-medium" title={agent.name}>{trimName(agent.name)}</span>
                     <span
                       className="tabular-nums text-sm font-semibold"
                       style={{ color: portfolio > 1000 ? "var(--yes)" : portfolio < 1000 ? "var(--no)" : "var(--text)" }}

@@ -14,8 +14,13 @@ function CopyButton({ text }: { text: string }) {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       }}
-      className="absolute right-2 top-2 rounded-md border border-[var(--border)] bg-[var(--surface)] px-2 py-1 text-xs transition hover:bg-[var(--surface-hover)]"
-      style={{ color: "var(--text-secondary)" }}
+      aria-label="Copy to clipboard"
+      className={`absolute right-2 top-2 rounded-md border px-2 py-1 text-xs transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-bright)] ${
+        copied
+          ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-500"
+          : "border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-hover)]"
+      }`}
+      style={copied ? undefined : { color: "var(--text-secondary)" }}
     >
       {copied ? "Copied!" : "Copy"}
     </button>

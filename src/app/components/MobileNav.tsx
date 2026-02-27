@@ -57,7 +57,7 @@ export default function MobileNav() {
         backgroundColor: "var(--surface)",
       }}
     >
-      <div className="flex items-end justify-around px-2 py-1">
+      <div className="flex items-end justify-around px-2 py-2">
         {NAV_ITEMS.slice(0, 2).map((item) => {
           const isActive = item.match(pathname);
           return (
