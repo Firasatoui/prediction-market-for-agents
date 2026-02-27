@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { getYesPrice } from "@/lib/market-maker";
 import MarketFilters from "./MarketFilters";
@@ -21,40 +21,137 @@ interface Market {
   agents: { name: string } | null;
 }
 
-export default function MarketList({ markets }: { markets: Market[] }) {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+type SortOption = "newest" | "closing" | "active";
 
-  const filtered = selectedCategory
-    ? markets.filter((m) => m.category === selectedCategory)
-    : markets;
+function timeRemaining(dateStr: string, resolved: boolean): string {
+  if (resolved) return "Closed";
+  const now = Date.now();
+  const target = new Date(dateStr).getTime();
+  const diff = target - now;
+  if (diff <= 0) return "Closing soon";
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  if (days === 0) return "Closes today";
+  if (days === 1) return "Closes tomorrow";
+  if (days < 7) return `Closes in ${days}d`;
+  if (days < 30) return `Closes in ${Math.floor(days / 7)}w`;
+  return `Closes in ${Math.floor(days / 30)}mo`;
+}
+
+export default function MarketList({
+  markets,
+  tradeCounts = {},
+}: {
+  markets: Market[];
+  tradeCounts?: Record<string, number>;
+}) {
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState<SortOption>("newest");
+
+  const result = useMemo(() => {
+    let list = markets;
+
+    // Category filter
+    if (selectedCategory) {
+      list = list.filter((m) => m.category === selectedCategory);
+    }
+
+    // Search filter
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter((m) => m.question.toLowerCase().includes(q));
+    }
+
+    // Sort
+    list = [...list].sort((a, b) => {
+      if (sortBy === "closing") {
+        // Unresolved first, then by resolution_date ascending
+        if (a.resolved !== b.resolved) return a.resolved ? 1 : -1;
+        return new Date(a.resolution_date).getTime() - new Date(b.resolution_date).getTime();
+      }
+      if (sortBy === "active") {
+        return (tradeCounts[b.id] ?? 0) - (tradeCounts[a.id] ?? 0);
+      }
+      // newest
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+
+    return list;
+  }, [markets, selectedCategory, search, sortBy, tradeCounts]);
 
   return (
     <div>
       <h2 className="mb-4 text-xl font-semibold">All Markets</h2>
+
+      {/* Search + Sort row */}
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row">
+        <div className="relative flex-1">
+          <svg
+            className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2"
+            style={{ color: "var(--text-muted)" }}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Search markets..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-lg border py-2 pl-10 pr-3 text-sm outline-none transition focus:border-[var(--primary-bright)]"
+            style={{
+              borderColor: "var(--border)",
+              backgroundColor: "var(--surface)",
+              color: "var(--text)",
+            }}
+          />
+        </div>
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value as SortOption)}
+          className="shrink-0 rounded-lg border px-3 py-2 text-sm outline-none"
+          style={{
+            borderColor: "var(--border)",
+            backgroundColor: "var(--surface)",
+            color: "var(--text)",
+          }}
+        >
+          <option value="newest">Newest</option>
+          <option value="closing">Closing Soon</option>
+          <option value="active">Most Active</option>
+        </select>
+      </div>
+
       <MarketFilters selected={selectedCategory} onSelect={setSelectedCategory} />
-      {filtered.length === 0 ? (
+
+      {result.length === 0 ? (
         <div
           className="rounded-xl border border-dashed p-12 text-center"
           style={{ borderColor: "var(--border)" }}
         >
           <p className="text-lg" style={{ color: "var(--text-muted)" }}>
-            {selectedCategory ? `No ${selectedCategory} markets yet` : "No markets yet"}
+            {search ? "No markets match your search" : selectedCategory ? `No ${selectedCategory} markets yet` : "No markets yet"}
           </p>
           <p
             className="mt-2 text-sm"
             style={{ color: "var(--text-muted)" }}
           >
-            Agents can create markets via POST /api/markets
+            {search ? "Try a different keyword" : "Agents can create markets via POST /api/markets"}
           </p>
         </div>
       ) : (
         <div className="space-y-3">
-          {filtered.map((market) => {
+          {result.map((market) => {
             const yesPrice = getYesPrice({
               yes_pool: market.yes_pool,
               no_pool: market.no_pool,
             });
             const pct = Math.round(yesPrice * 100);
+            const trades = tradeCounts[market.id] ?? 0;
+            const timeLeft = timeRemaining(market.resolution_date, market.resolved);
 
             return (
               <Link
@@ -81,12 +178,8 @@ export default function MarketList({ markets }: { markets: Market[] }) {
                       {(market.agents as { name: string } | null)?.name ??
                         "unknown"}
                     </span>
-                    <span>
-                      Resolves{" "}
-                      {new Date(
-                        market.resolution_date
-                      ).toLocaleDateString()}
-                    </span>
+                    <span>{timeLeft}</span>
+                    {trades > 0 && <span>{trades} trade{trades !== 1 ? "s" : ""}</span>}
                     {market.category && (
                       <span
                         className="hidden rounded-full border px-2 py-0.5 text-xs sm:inline"

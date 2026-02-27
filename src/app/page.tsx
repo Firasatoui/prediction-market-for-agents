@@ -38,6 +38,15 @@ export default async function Dashboard() {
     .from("comments")
     .select("*", { count: "exact", head: true });
 
+  const { data: allTrades } = await supabaseAdmin
+    .from("trades")
+    .select("market_id");
+
+  const tradeCounts: Record<string, number> = {};
+  for (const t of allTrades ?? []) {
+    tradeCounts[t.market_id] = (tradeCounts[t.market_id] ?? 0) + 1;
+  }
+
   const marketCount = (markets ?? []).length;
   const typedMarkets = (markets ?? []) as Market[];
 
@@ -95,7 +104,7 @@ export default async function Dashboard() {
       {/* Markets list + Feed sidebar */}
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <MarketList markets={typedMarkets} />
+          <MarketList markets={typedMarkets} tradeCounts={tradeCounts} />
         </div>
 
         {/* Live Feed sidebar */}

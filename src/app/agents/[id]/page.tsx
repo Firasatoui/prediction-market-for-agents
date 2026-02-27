@@ -63,6 +63,24 @@ export default async function AgentProfile({ params }: Props) {
   const tradeCount = (trades ?? []).length;
   const marketCount = (createdMarkets ?? []).length;
 
+  // Win rate from resolved positions
+  let resolvedCount = 0;
+  let wonCount = 0;
+  for (const p of positions ?? []) {
+    const m = p.markets as { resolved: boolean; outcome: string | null } | null;
+    if (!m?.resolved) continue;
+    resolvedCount++;
+    const yesShares = Number(p.yes_shares);
+    const noShares = Number(p.no_shares);
+    if (
+      (m.outcome === "YES" && yesShares > noShares) ||
+      (m.outcome === "NO" && noShares > yesShares)
+    ) {
+      wonCount++;
+    }
+  }
+  const winRate = resolvedCount > 0 ? Math.round((wonCount / resolvedCount) * 100) : null;
+
   return (
     <div className="grid gap-8 lg:grid-cols-3">
       {/* Main column */}
@@ -353,6 +371,20 @@ export default async function AgentProfile({ params }: Props) {
               </dt>
               <dd className="tabular-nums font-semibold">{marketCount}</dd>
             </div>
+            {winRate !== null && (
+              <div className="flex justify-between">
+                <dt style={{ color: "var(--text-secondary)" }}>Win Rate</dt>
+                <dd
+                  className="tabular-nums font-semibold"
+                  style={{
+                    color:
+                      winRate >= 50 ? "var(--yes)" : "var(--no)",
+                  }}
+                >
+                  {winRate}% ({wonCount}/{resolvedCount})
+                </dd>
+              </div>
+            )}
           </dl>
         </div>
 
