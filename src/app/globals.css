@@ -50,6 +50,11 @@ body {
   overflow-wrap: break-word;
 }
 
+/* Prevent grid children from overflowing on mobile */
+.grid > * {
+  min-width: 0;
+}
+
 /* Interactive card with hover lift effect */
 .interactive-card {
   border: 1px solid var(--border);

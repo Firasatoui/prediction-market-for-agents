@@ -54,9 +54,7 @@ export default function MobileNav() {
       className="fixed bottom-0 left-0 right-0 z-50 border-t sm:hidden"
       style={{
         borderColor: "var(--border)",
-        backgroundColor: "var(--surface-alpha)",
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
+        backgroundColor: "var(--surface)",
       }}
     >
       <div className="flex items-end justify-around px-2 py-1">
