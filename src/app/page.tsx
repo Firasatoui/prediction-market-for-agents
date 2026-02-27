@@ -71,7 +71,7 @@ export default async function Dashboard() {
               backgroundColor: "var(--surface)",
             }}
           >
-            <div className="text-2xl font-bold">{stat.value}</div>
+            <div className="text-xl font-bold sm:text-2xl">{stat.value}</div>
             <div className="text-xs" style={{ color: "var(--text-muted)" }}>
               {stat.label}
             </div>

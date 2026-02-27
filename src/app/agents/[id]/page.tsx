@@ -201,70 +201,99 @@ export default async function AgentProfile({ params }: Props) {
               No trades yet
             </p>
           ) : (
-            <div
-              className="overflow-hidden rounded-lg border"
-              style={{ borderColor: "var(--border)" }}
-            >
-              <table className="w-full text-sm">
-                <thead
-                  style={{
-                    backgroundColor: "var(--surface)",
-                    color: "var(--text-muted)",
-                  }}
-                >
-                  <tr>
-                    <th className="px-4 py-2 text-left">Market</th>
-                    <th className="px-4 py-2 text-left">Side</th>
-                    <th className="px-4 py-2 text-right">Amount</th>
-                    <th className="px-4 py-2 text-right">Shares</th>
-                    <th className="px-4 py-2 text-right">Time</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(trades ?? []).map((t) => (
-                    <tr
-                      key={t.id}
-                      style={{ borderTop: "1px solid var(--border)" }}
-                    >
-                      <td className="max-w-[200px] truncate px-4 py-2">
-                        <Link
-                          href={`/markets/${t.market_id}`}
-                          className="hover:underline"
-                          style={{ color: "var(--primary-bright)" }}
-                        >
-                          {(t.markets as { question: string } | null)
-                            ?.question ?? "Unknown"}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-2">
-                        <span
-                          style={{
-                            color:
-                              t.side === "YES"
-                                ? "var(--yes)"
-                                : "var(--no)",
-                          }}
-                        >
-                          {t.side}
-                        </span>
-                      </td>
-                      <td className="tabular-nums px-4 py-2 text-right">
-                        {formatBalance(Number(t.amount))}
-                      </td>
-                      <td className="tabular-nums px-4 py-2 text-right">
-                        {Number(t.shares_received).toFixed(4)}
-                      </td>
-                      <td
-                        className="px-4 py-2 text-right"
-                        style={{ color: "var(--text-muted)" }}
+            <>
+              {/* Mobile cards */}
+              <div className="space-y-3 sm:hidden">
+                {(trades ?? []).map((t) => (
+                  <Link
+                    key={t.id}
+                    href={`/markets/${t.market_id}`}
+                    className="block rounded-xl border p-4"
+                    style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)" }}
+                  >
+                    <p className="line-clamp-1 text-sm font-medium" style={{ color: "var(--primary-bright)" }}>
+                      {(t.markets as { question: string } | null)?.question ?? "Unknown"}
+                    </p>
+                    <div className="mt-2 flex items-center gap-3 text-xs" style={{ color: "var(--text-muted)" }}>
+                      <span
+                        className="font-semibold"
+                        style={{ color: t.side === "YES" ? "var(--yes)" : "var(--no)" }}
                       >
-                        {new Date(t.created_at).toLocaleDateString()}
-                      </td>
+                        {t.side}
+                      </span>
+                      <span className="tabular-nums">{formatBalance(Number(t.amount))}</span>
+                      <span>{new Date(t.created_at).toLocaleDateString()}</span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+
+              {/* Desktop table */}
+              <div
+                className="hidden overflow-hidden rounded-lg border sm:block"
+                style={{ borderColor: "var(--border)" }}
+              >
+                <table className="w-full text-sm">
+                  <thead
+                    style={{
+                      backgroundColor: "var(--surface)",
+                      color: "var(--text-muted)",
+                    }}
+                  >
+                    <tr>
+                      <th className="px-4 py-2 text-left">Market</th>
+                      <th className="px-4 py-2 text-left">Side</th>
+                      <th className="px-4 py-2 text-right">Amount</th>
+                      <th className="px-4 py-2 text-right">Shares</th>
+                      <th className="px-4 py-2 text-right">Time</th>
                     </tr>
+                  </thead>
+                  <tbody>
+                    {(trades ?? []).map((t) => (
+                      <tr
+                        key={t.id}
+                        style={{ borderTop: "1px solid var(--border)" }}
+                      >
+                        <td className="max-w-[200px] truncate px-4 py-2">
+                          <Link
+                            href={`/markets/${t.market_id}`}
+                            className="hover:underline"
+                            style={{ color: "var(--primary-bright)" }}
+                          >
+                            {(t.markets as { question: string } | null)
+                              ?.question ?? "Unknown"}
+                          </Link>
+                        </td>
+                        <td className="px-4 py-2">
+                          <span
+                            style={{
+                              color:
+                                t.side === "YES"
+                                  ? "var(--yes)"
+                                  : "var(--no)",
+                            }}
+                          >
+                            {t.side}
+                          </span>
+                        </td>
+                        <td className="tabular-nums px-4 py-2 text-right">
+                          {formatBalance(Number(t.amount))}
+                        </td>
+                        <td className="tabular-nums px-4 py-2 text-right">
+                          {Number(t.shares_received).toFixed(4)}
+                        </td>
+                        <td
+                          className="px-4 py-2 text-right"
+                          style={{ color: "var(--text-muted)" }}
+                        >
+                          {new Date(t.created_at).toLocaleDateString()}
+                        </td>
+                      </tr>
                   ))}
                 </tbody>
               </table>
             </div>
+            </>
           )}
         </div>
 
@@ -315,7 +344,7 @@ export default async function AgentProfile({ params }: Props) {
       <div className="space-y-4">
         {/* Stats */}
         <div
-          className="rounded-xl border p-5"
+          className="rounded-xl border p-4"
           style={{
             borderColor: "var(--border)",
             backgroundColor: "var(--surface)",
@@ -391,7 +420,7 @@ export default async function AgentProfile({ params }: Props) {
         {/* Created Markets */}
         {marketCount > 0 && (
           <div
-            className="rounded-xl border p-5"
+            className="rounded-xl border p-4"
             style={{
               borderColor: "var(--border)",
               backgroundColor: "var(--surface)",

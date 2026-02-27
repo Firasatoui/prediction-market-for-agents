@@ -160,79 +160,120 @@ export default async function MarketDetail({ params }: Props) {
               No trades yet
             </p>
           ) : (
-            <div
-              className="overflow-hidden rounded-lg border"
-              style={{ borderColor: "var(--border)" }}
-            >
-              <table className="w-full text-sm">
-                <thead
-                  style={{
-                    backgroundColor: "var(--surface)",
-                    color: "var(--text-muted)",
-                  }}
-                >
-                  <tr>
-                    <th className="px-4 py-2 text-left">Agent</th>
-                    <th className="px-4 py-2 text-left">Side</th>
-                    <th className="px-4 py-2 text-right">Amount</th>
-                    <th className="px-4 py-2 text-right">Shares</th>
-                    <th className="px-4 py-2 text-right">Price</th>
-                    <th className="px-4 py-2 text-right">Time</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {trades.map((t) => {
-                    const agentData = t.agents as { id: string; name: string } | null;
-                    return (
-                      <tr
-                        key={t.id}
-                        className="transition hover:bg-[var(--surface-hover)]"
-                        style={{ borderTop: "1px solid var(--border)" }}
-                      >
-                        <td className="px-4 py-2">
+            <>
+              {/* Mobile cards */}
+              <div className="space-y-3 sm:hidden">
+                {trades.map((t) => {
+                  const agentData = t.agents as { id: string; name: string } | null;
+                  return (
+                    <div
+                      key={t.id}
+                      className="rounded-xl border p-4"
+                      style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)" }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
                           {agentData ? (
-                            <Link
-                              href={`/agents/${agentData.id}`}
-                              className="flex items-center gap-2 hover:underline"
-                            >
+                            <Link href={`/agents/${agentData.id}`} className="flex items-center gap-2 text-sm font-medium hover:underline">
                               <AgentAvatar name={agentData.name} size={22} />
                               {agentData.name}
                             </Link>
                           ) : (
-                            "Unknown"
+                            <span className="text-sm">Unknown</span>
                           )}
-                        </td>
-                        <td className="px-4 py-2">
-                          <span
-                            style={{
-                              color:
-                                t.side === "YES" ? "var(--yes)" : "var(--no)",
-                            }}
-                          >
-                            {t.side}
-                          </span>
-                        </td>
-                        <td className="tabular-nums px-4 py-2 text-right">
-                          {formatBalance(Number(t.amount))}
-                        </td>
-                        <td className="tabular-nums px-4 py-2 text-right">
-                          {Number(t.shares_received).toFixed(4)}
-                        </td>
-                        <td className="tabular-nums px-4 py-2 text-right">
-                          {Number(t.price_at_trade).toFixed(4)}
-                        </td>
-                        <td
-                          className="px-4 py-2 text-right"
-                          style={{ color: "var(--text-muted)" }}
+                        </div>
+                        <span
+                          className="text-sm font-semibold"
+                          style={{ color: t.side === "YES" ? "var(--yes)" : "var(--no)" }}
                         >
-                          {new Date(t.created_at).toLocaleString()}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                          {t.side}
+                        </span>
+                      </div>
+                      <div className="mt-2 flex items-center gap-4 text-xs" style={{ color: "var(--text-muted)" }}>
+                        <span className="tabular-nums">{formatBalance(Number(t.amount))}</span>
+                        <span className="tabular-nums">@ {Number(t.price_at_trade).toFixed(2)}</span>
+                        <span>{new Date(t.created_at).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop table */}
+              <div
+                className="hidden overflow-hidden rounded-lg border sm:block"
+                style={{ borderColor: "var(--border)" }}
+              >
+                <table className="w-full text-sm">
+                  <thead
+                    style={{
+                      backgroundColor: "var(--surface)",
+                      color: "var(--text-muted)",
+                    }}
+                  >
+                    <tr>
+                      <th className="px-4 py-2 text-left">Agent</th>
+                      <th className="px-4 py-2 text-left">Side</th>
+                      <th className="px-4 py-2 text-right">Amount</th>
+                      <th className="px-4 py-2 text-right">Shares</th>
+                      <th className="px-4 py-2 text-right">Price</th>
+                      <th className="px-4 py-2 text-right">Time</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {trades.map((t) => {
+                      const agentData = t.agents as { id: string; name: string } | null;
+                      return (
+                        <tr
+                          key={t.id}
+                          className="transition hover:bg-[var(--surface-hover)]"
+                          style={{ borderTop: "1px solid var(--border)" }}
+                        >
+                          <td className="px-4 py-2">
+                            {agentData ? (
+                              <Link
+                                href={`/agents/${agentData.id}`}
+                                className="flex items-center gap-2 hover:underline"
+                              >
+                                <AgentAvatar name={agentData.name} size={22} />
+                                {agentData.name}
+                              </Link>
+                            ) : (
+                              "Unknown"
+                            )}
+                          </td>
+                          <td className="px-4 py-2">
+                            <span
+                              style={{
+                                color:
+                                  t.side === "YES" ? "var(--yes)" : "var(--no)",
+                              }}
+                            >
+                              {t.side}
+                            </span>
+                          </td>
+                          <td className="tabular-nums px-4 py-2 text-right">
+                            {formatBalance(Number(t.amount))}
+                          </td>
+                          <td className="tabular-nums px-4 py-2 text-right">
+                            {Number(t.shares_received).toFixed(4)}
+                          </td>
+                          <td className="tabular-nums px-4 py-2 text-right">
+                            {Number(t.price_at_trade).toFixed(4)}
+                          </td>
+                          <td
+                            className="px-4 py-2 text-right"
+                            style={{ color: "var(--text-muted)" }}
+                          >
+                            {new Date(t.created_at).toLocaleString()}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
 
@@ -304,7 +345,7 @@ export default async function MarketDetail({ params }: Props) {
       {/* Sidebar */}
       <div className="space-y-4">
         <div
-          className="rounded-xl border p-5"
+          className="rounded-xl border p-4"
           style={{
             borderColor: "var(--border)",
             backgroundColor: "var(--surface)",

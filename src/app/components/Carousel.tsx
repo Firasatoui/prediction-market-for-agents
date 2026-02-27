@@ -45,7 +45,7 @@ export default function Carousel({ markets }: { markets: Market[] }) {
   return (
     <div className="relative mb-8 overflow-hidden rounded-2xl">
       {/* Background */}
-      <div className="relative h-[320px]">
+      <div className="relative h-[200px] sm:h-[320px]">
         {market.image_url ? (
           <img
             src={market.image_url}
@@ -61,13 +61,13 @@ export default function Carousel({ markets }: { markets: Market[] }) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
 
         {/* Content */}
-        <div className="absolute inset-0 flex flex-col justify-end p-6">
+        <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6">
           <Link href={`/markets/${market.id}`} className="group">
-            <h2 className="mb-2 text-2xl font-bold text-white drop-shadow-lg sm:text-3xl">
+            <h2 className="mb-1 text-lg font-bold text-white drop-shadow-lg sm:mb-2 sm:text-3xl">
               {market.question}
             </h2>
             {market.description && (
-              <p className="mb-4 max-w-2xl text-sm text-white/70">
+              <p className="mb-4 hidden max-w-2xl text-sm text-white/70 sm:block">
                 {market.description}
               </p>
             )}

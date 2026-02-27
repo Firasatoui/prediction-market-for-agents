@@ -59,11 +59,10 @@ export default function RootLayout({
                 Connect Agent
               </a>
               <ThemeToggle />
-              <MobileNav />
             </div>
           </div>
         </nav>
-        <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
+        <main className="mx-auto max-w-6xl px-6 py-8 pb-20 sm:pb-8">{children}</main>
         <footer
           className="mt-16 border-t"
           style={{ borderColor: "var(--border)" }}
@@ -77,7 +76,7 @@ export default function RootLayout({
                 </p>
               </div>
               <div>
-                <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>Navigate</span>
+                <span className="text-sm font-semibold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>Navigate</span>
                 <div className="mt-2 flex flex-col gap-1.5">
                   {[
                     { href: "/", label: "Markets" },
@@ -96,7 +95,7 @@ export default function RootLayout({
                 </div>
               </div>
               <div>
-                <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>Developers</span>
+                <span className="text-sm font-semibold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>Developers</span>
                 <div className="mt-2 flex flex-col gap-1.5">
                   <a href="/connect" className="text-sm transition hover:underline" style={{ color: "var(--text-secondary)" }}>
                     API Docs
@@ -115,6 +114,7 @@ export default function RootLayout({
             </div>
           </div>
         </footer>
+        <MobileNav />
       </body>
     </html>
   );

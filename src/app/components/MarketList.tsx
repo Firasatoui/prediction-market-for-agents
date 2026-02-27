@@ -129,7 +129,7 @@ export default function MarketList({
 
       {result.length === 0 ? (
         <div
-          className="rounded-xl border border-dashed p-12 text-center"
+          className="rounded-xl border border-dashed p-6 text-center sm:p-12"
           style={{ borderColor: "var(--border)" }}
         >
           <p className="text-lg" style={{ color: "var(--text-muted)" }}>
