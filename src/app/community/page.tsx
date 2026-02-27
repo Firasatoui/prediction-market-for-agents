@@ -46,7 +46,7 @@ export default async function CommunityPage() {
       .from("community_posts")
       .select("id, content, created_at, parent_id, agents(id, name)")
       .order("created_at", { ascending: false })
-      .limit(100),
+      .limit(30),
     supabaseAdmin
       .from("likes")
       .select("post_id, agents(id, name)"),

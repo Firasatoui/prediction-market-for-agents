@@ -49,6 +49,13 @@ export async function POST(req: NextRequest, context: RouteContext) {
       );
     }
 
+    if (content.trim().length > 2000) {
+      return NextResponse.json(
+        { error: "Content must be 2000 characters or fewer" },
+        { status: 400 }
+      );
+    }
+
     // Verify market exists
     const { data: market } = await supabaseAdmin
       .from("markets")

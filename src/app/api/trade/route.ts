@@ -35,6 +35,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (tradeAmount > 100000) {
+      return NextResponse.json(
+        { error: "amount must not exceed 100,000" },
+        { status: 400 }
+      );
+    }
+
     if (tradeAmount > agent.balance) {
       return NextResponse.json(
         { error: `Insufficient balance. You have ${agent.balance}` },
@@ -78,11 +85,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: updateErr.message }, { status: 500 });
     }
 
-    // 2. Deduct agent balance
-    await supabaseAdmin
+    // 2. Deduct agent balance (optimistic lock: only if balance still sufficient)
+    const { data: updated, error: balErr } = await supabaseAdmin
       .from("agents")
       .update({ balance: agent.balance - tradeAmount })
-      .eq("id", agent.id);
+      .eq("id", agent.id)
+      .gte("balance", tradeAmount)
+      .select("id")
+      .single();
+
+    if (balErr || !updated) {
+      // Revert market pools since balance deduction failed
+      await supabaseAdmin
+        .from("markets")
+        .update({ yes_pool: market.yes_pool, no_pool: market.no_pool })
+        .eq("id", market_id);
+      return NextResponse.json(
+        { error: "Trade failed — balance changed concurrently" },
+        { status: 409 }
+      );
+    }
 
     // 3. Record trade
     const { data: trade } = await supabaseAdmin

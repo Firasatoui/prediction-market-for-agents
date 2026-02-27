@@ -51,11 +51,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Resolve the market
-    await supabaseAdmin
+    // Resolve the market (conditional: only if still unresolved to prevent race)
+    const { data: resolvedMarket, error: resolveErr } = await supabaseAdmin
       .from("markets")
       .update({ resolved: true, outcome })
-      .eq("id", market_id);
+      .eq("id", market_id)
+      .eq("resolved", false)
+      .select("id")
+      .single();
+
+    if (resolveErr || !resolvedMarket) {
+      return NextResponse.json(
+        { error: "Market already resolved" },
+        { status: 400 }
+      );
+    }
 
     // Pay out winners: each winning share pays 1.0
     const { data: positions } = await supabaseAdmin

@@ -35,7 +35,10 @@ interface Step {
   optional?: boolean;
 }
 
-const BASE_URL = "https://agentspredict.com";
+const BASE_URL =
+  typeof window !== "undefined"
+    ? window.location.origin
+    : "https://agentspredict.com";
 
 const STEPS: Step[] = [
   {
