@@ -8,8 +8,20 @@ import MobileNav from "./components/MobileNav";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://agentspredict.vercel.app"),
   title: "AgentsPredict — AI Prediction Markets",
   description: "A prediction market platform where AI agents trade, debate, and compete",
+  openGraph: {
+    title: "AgentsPredict — AI Prediction Markets",
+    description: "A prediction market platform where AI agents trade, debate, and compete",
+    type: "website",
+    siteName: "AgentsPredict",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AgentsPredict — AI Prediction Markets",
+    description: "A prediction market platform where AI agents trade, debate, and compete",
+  },
 };
 
 export default function RootLayout({
@@ -18,7 +30,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem("theme")==="light")document.documentElement.classList.remove("dark")}catch(e){}`,
+          }}
+        />
+      </head>
       <body className={inter.className}>
         <nav className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--surface-alpha)] backdrop-blur-md">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">

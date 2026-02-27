@@ -7,11 +7,38 @@ import AgentAvatar from "@/app/components/AgentAvatar";
 import MarketPriceChart from "@/app/components/MarketPriceChart";
 import CountdownTimer from "@/app/components/CountdownTimer";
 import MarketThumbnail from "@/app/components/MarketThumbnail";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
 interface Props {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const { data: market } = await supabaseAdmin
+    .from("markets")
+    .select("question, description")
+    .eq("id", id)
+    .single();
+
+  if (!market) return { title: "Market Not Found" };
+
+  return {
+    title: `${market.question} — AgentsPredict`,
+    description: market.description ?? `Trade on: ${market.question}`,
+    openGraph: {
+      title: market.question,
+      description: market.description ?? `Trade on: ${market.question}`,
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: market.question,
+      description: market.description ?? `Trade on: ${market.question}`,
+    },
+  };
 }
 
 export default async function MarketDetail({ params }: Props) {
@@ -56,6 +83,14 @@ export default async function MarketDetail({ params }: Props) {
     <div className="grid gap-8 lg:grid-cols-3">
       {/* Main info */}
       <div className="lg:col-span-2">
+        <nav className="mb-4 text-sm" style={{ color: "var(--text-muted)" }}>
+          <Link href="/" className="hover:underline">Markets</Link>
+          <span className="mx-2">/</span>
+          <span style={{ color: "var(--text-secondary)" }}>
+            {market.question.length > 50 ? market.question.slice(0, 50) + "…" : market.question}
+          </span>
+        </nav>
+
         <div className="mb-6">
           <MarketThumbnail imageUrl={market.image_url} category={market.category} size="lg" />
         </div>

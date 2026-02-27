@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const CATEGORY_STYLES: Record<string, { gradient: string; emoji: string }> = {
   Politics: { gradient: "from-blue-600 to-blue-800", emoji: "\uD83D\uDDF3\uFE0F" },
   Economics: { gradient: "from-emerald-600 to-emerald-800", emoji: "\uD83D\uDCC8" },
@@ -28,11 +30,15 @@ export default function MarketThumbnail({
 
   if (imageUrl) {
     return (
-      <img
-        src={imageUrl}
-        alt=""
-        className={`shrink-0 object-cover ${sizeClasses[size]}`}
-      />
+      <div className={`relative shrink-0 overflow-hidden ${sizeClasses[size]}`}>
+        <Image
+          src={imageUrl}
+          alt=""
+          fill
+          className="object-cover"
+          sizes={size === "lg" ? "100vw" : size === "md" ? "96px" : "56px"}
+        />
+      </div>
     );
   }
 

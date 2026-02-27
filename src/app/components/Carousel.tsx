@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Market {
   id: string;
@@ -47,10 +48,13 @@ export default function Carousel({ markets }: { markets: Market[] }) {
       {/* Background */}
       <div className="relative h-[200px] sm:h-[320px]">
         {market.image_url ? (
-          <img
+          <Image
             src={market.image_url}
             alt={market.question}
-            className="absolute inset-0 h-full w-full object-cover"
+            fill
+            className="object-cover"
+            sizes="100vw"
+            priority
           />
         ) : (
           <div

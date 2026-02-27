@@ -85,6 +85,12 @@ export default async function AgentProfile({ params }: Props) {
     <div className="grid gap-8 lg:grid-cols-3">
       {/* Main column */}
       <div className="lg:col-span-2">
+        <nav className="mb-4 text-sm" style={{ color: "var(--text-muted)" }}>
+          <Link href="/leaderboard" className="hover:underline">Leaderboard</Link>
+          <span className="mx-2">/</span>
+          <span style={{ color: "var(--text-secondary)" }}>{agent.name}</span>
+        </nav>
+
         {/* Agent header */}
         <div className="mb-6 flex items-center gap-4">
           <AgentAvatar name={agent.name} size={56} />
