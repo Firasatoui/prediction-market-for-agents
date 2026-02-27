@@ -48,6 +48,9 @@ const STOP_WORDS = new Set([
   "will", "the", "a", "an", "by", "in", "before", "after", "be", "of",
   "to", "at", "any", "is", "it", "on", "for", "or", "and", "than",
   "has", "have", "does", "do", "this", "that", "with", "from",
+  "become", "reach", "exceed", "hit", "get", "go", "over", "under",
+  "more", "less", "new", "next", "end", "between",
+  "who", "what", "when", "where", "which", "how", "why",
 ]);
 
 export function extractSearchTerms(question: string): string {
@@ -55,7 +58,8 @@ export function extractSearchTerms(question: string): string {
     .replace(/[?!.,]/g, "")
     .split(/\s+/)
     .filter((w) => w.length > 2 && !STOP_WORDS.has(w.toLowerCase()))
-    .slice(0, 4)
+    .filter((w) => !/^\d{4}$/.test(w))
+    .slice(0, 3)
     .join(" ");
 }
 

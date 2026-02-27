@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 
 const CATEGORY_STYLES: Record<string, { gradient: string; emoji: string }> = {
@@ -22,13 +25,15 @@ export default function MarketThumbnail({
   category: string | null;
   size?: "sm" | "md" | "lg";
 }) {
+  const [failed, setFailed] = useState(false);
+
   const sizeClasses = {
     sm: "h-14 w-14 text-2xl rounded-lg",
     md: "h-24 w-24 text-4xl rounded-xl",
     lg: "h-48 w-full text-6xl rounded-xl",
   };
 
-  if (imageUrl) {
+  if (imageUrl && !failed) {
     return (
       <div className={`relative shrink-0 overflow-hidden ${sizeClasses[size]}`}>
         <Image
@@ -37,6 +42,7 @@ export default function MarketThumbnail({
           fill
           className="object-cover"
           sizes={size === "lg" ? "100vw" : size === "md" ? "96px" : "56px"}
+          onError={() => setFailed(true)}
         />
       </div>
     );
