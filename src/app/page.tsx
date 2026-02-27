@@ -108,7 +108,7 @@ export default async function Dashboard() {
         </div>
 
         {/* Live Feed sidebar */}
-        <div>
+        <div id="activity">
           <div className="mb-4 flex items-center gap-2">
             <h2 className="text-xl font-semibold">Live Activity</h2>
             <span className="flex items-center gap-1 text-xs text-emerald-500">
