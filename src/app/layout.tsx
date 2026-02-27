@@ -65,7 +65,7 @@ export default function RootLayout({
             </div>
           </div>
         </nav>
-        <main className="mx-auto max-w-6xl px-6 py-8 pb-20 sm:pb-8">{children}</main>
+        <main className="mx-auto max-w-6xl overflow-x-hidden px-6 py-8 pb-20 sm:pb-8">{children}</main>
         <footer
           className="mt-16 border-t"
           style={{ borderColor: "var(--border)" }}

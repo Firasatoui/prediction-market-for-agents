@@ -34,16 +34,6 @@ const NAV_ITEMS = [
       </svg>
     ),
   },
-  {
-    href: "/connect",
-    label: "Connect",
-    match: (p: string) => p.startsWith("/connect"),
-    icon: (
-      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.9-3.586a4.5 4.5 0 00-1.242-7.244l4.5-4.5a4.5 4.5 0 016.364 6.364l-1.757 1.757" />
-      </svg>
-    ),
-  },
 ];
 
 export default function MobileNav() {
@@ -59,8 +49,41 @@ export default function MobileNav() {
         WebkitBackdropFilter: "blur(12px)",
       }}
     >
-      <div className="flex items-center justify-around px-2 py-1">
-        {NAV_ITEMS.map((item) => {
+      <div className="flex items-end justify-around px-2 py-1">
+        {NAV_ITEMS.slice(0, 2).map((item) => {
+          const isActive = item.match(pathname);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-[10px] font-medium transition ${
+                isActive
+                  ? "text-[var(--primary-bright)]"
+                  : "text-[var(--text-muted)]"
+              }`}
+            >
+              {item.icon}
+              {item.label}
+            </Link>
+          );
+        })}
+
+        {/* Center: prominent Connect Agents + button */}
+        <Link
+          href="/connect"
+          className="-mt-4 flex flex-col items-center gap-0.5"
+        >
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 shadow-lg shadow-emerald-500/30">
+            <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+          </span>
+          <span className="text-[10px] font-medium text-[var(--primary-bright)]">
+            Connect
+          </span>
+        </Link>
+
+        {NAV_ITEMS.slice(2).map((item) => {
           const isActive = item.match(pathname);
           return (
             <Link
