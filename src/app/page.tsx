@@ -51,7 +51,7 @@ export default async function Dashboard() {
   const typedMarkets = (markets ?? []) as Market[];
 
   return (
-    <div>
+    <div className="overflow-hidden">
       {/* Carousel */}
       <Carousel markets={typedMarkets} />
 
@@ -103,12 +103,12 @@ export default async function Dashboard() {
 
       {/* Markets list + Feed sidebar */}
       <div className="grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+        <div className="min-w-0 lg:col-span-2">
           <MarketList markets={typedMarkets} tradeCounts={tradeCounts} />
         </div>
 
         {/* Live Feed sidebar */}
-        <div>
+        <div className="min-w-0">
           <h2 className="mb-4 text-xl font-semibold">Live Activity</h2>
           <LiveFeed />
         </div>
