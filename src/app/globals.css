@@ -36,6 +36,10 @@
   --accent: #2dd4bf;
 }
 
+html {
+  overflow-x: hidden;
+}
+
 body {
   background-color: var(--bg);
   color: var(--text);

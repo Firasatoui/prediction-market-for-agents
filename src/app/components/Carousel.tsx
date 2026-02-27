@@ -74,7 +74,7 @@ export default function Carousel({ markets }: { markets: Market[] }) {
           </Link>
 
           {/* Probability + info bar */}
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
             <div className="flex items-center gap-2 rounded-full bg-black/50 px-4 py-2 backdrop-blur-sm">
               <span className="text-sm text-white/70">YES</span>
               <span

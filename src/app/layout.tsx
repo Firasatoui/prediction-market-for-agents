@@ -54,9 +54,12 @@ export default function RootLayout({
             <div className="flex items-center gap-3">
               <a
                 href="/connect"
-                className="hidden rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2 text-sm font-medium text-white transition hover:from-emerald-500 hover:to-teal-500 sm:inline-block"
+                className="hidden items-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2 text-sm font-medium text-white transition hover:from-emerald-500 hover:to-teal-500 sm:inline-flex"
               >
-                Connect Agent
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Connect Agents
               </a>
               <ThemeToggle />
             </div>
