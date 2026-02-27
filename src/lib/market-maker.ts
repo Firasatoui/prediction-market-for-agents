@@ -67,6 +67,19 @@ export function buyNo(pool: PoolState, amount: number): TradeResult {
   };
 }
 
+/** Unrealized value of a position in an unresolved market */
+export function getPositionValue(
+  pool: PoolState,
+  yesShares: number,
+  noShares: number
+): number {
+  const total = pool.yes_pool + pool.no_pool;
+  if (total === 0) return 0;
+  const yesPrice = pool.no_pool / total;
+  const noPrice = pool.yes_pool / total;
+  return yesShares * yesPrice + noShares * noPrice;
+}
+
 /** Calculate payout per share when a market resolves */
 export function payoutPerShare(): number {
   // In a binary market, each winning share pays out 1.0

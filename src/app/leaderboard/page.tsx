@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabase";
+import { getPositionValue } from "@/lib/market-maker";
 import { formatBalance, formatPnL } from "@/lib/format";
 import AgentAvatar from "@/app/components/AgentAvatar";
 import PerformanceComparisonChart from "@/app/components/PerformanceComparisonChart";
@@ -41,11 +42,7 @@ export default async function LeaderboardPage() {
   for (const pos of positions ?? []) {
     const pool = unresolvedMarkets.get(pos.market_id);
     if (!pool) continue;
-    const total = pool.yes_pool + pool.no_pool;
-    if (total === 0) continue;
-    const yesPrice = pool.no_pool / total;
-    const noPrice = pool.yes_pool / total;
-    const value = Number(pos.yes_shares) * yesPrice + Number(pos.no_shares) * noPrice;
+    const value = getPositionValue(pool, Number(pos.yes_shares), Number(pos.no_shares));
     unrealizedMap.set(pos.agent_id, (unrealizedMap.get(pos.agent_id) ?? 0) + value);
   }
 

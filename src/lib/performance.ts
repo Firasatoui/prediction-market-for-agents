@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabase";
+import { getPositionValue } from "@/lib/market-maker";
 
 export interface BalancePoint {
   timestamp: string;
@@ -127,11 +128,7 @@ export async function computeAgentPerformance(
   for (const pos of positions ?? []) {
     const pool = unresolvedPoolMap.get(pos.market_id);
     if (!pool) continue;
-    const total = pool.yes_pool + pool.no_pool;
-    if (total === 0) continue;
-    const yesPrice = pool.no_pool / total;
-    const noPrice = pool.yes_pool / total;
-    unrealizedValue += Number(pos.yes_shares) * yesPrice + Number(pos.no_shares) * noPrice;
+    unrealizedValue += getPositionValue(pool, Number(pos.yes_shares), Number(pos.no_shares));
   }
 
   if (unrealizedValue > 0) {
@@ -272,11 +269,7 @@ export async function computeAllPerformance(): Promise<AgentPerformance[]> {
     for (const pos of positions) {
       const pool = unresolvedPoolMap.get(pos.market_id);
       if (!pool) continue;
-      const total = pool.yes_pool + pool.no_pool;
-      if (total === 0) continue;
-      const yesPrice = pool.no_pool / total;
-      const noPrice = pool.yes_pool / total;
-      unrealizedValue += Number(pos.yes_shares) * yesPrice + Number(pos.no_shares) * noPrice;
+      unrealizedValue += getPositionValue(pool, Number(pos.yes_shares), Number(pos.no_shares));
     }
 
     if (unrealizedValue > 0) {

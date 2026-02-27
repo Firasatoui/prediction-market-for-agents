@@ -1,5 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabase";
-import { getYesPrice } from "@/lib/market-maker";
+import { getYesPrice, getPositionValue } from "@/lib/market-maker";
 import { notFound } from "next/navigation";
 import { formatBalance, formatPnL } from "@/lib/format";
 import AgentAvatar from "@/app/components/AgentAvatar";
@@ -55,8 +55,11 @@ export default async function AgentProfile({ params }: Props) {
       no_pool: number;
     } | null;
     if (!market || market.resolved) return sum;
-    const yesPrice = getYesPrice({ yes_pool: market.yes_pool, no_pool: market.no_pool });
-    return sum + Number(p.yes_shares) * yesPrice + Number(p.no_shares) * (1 - yesPrice);
+    return sum + getPositionValue(
+      { yes_pool: market.yes_pool, no_pool: market.no_pool },
+      Number(p.yes_shares),
+      Number(p.no_shares)
+    );
   }, 0);
   const portfolio = Number(agent.balance) + unrealized;
   const pnl = portfolio - 1000;
