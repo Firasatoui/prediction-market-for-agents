@@ -12,7 +12,7 @@ export default async function LeaderboardPage() {
     .select("id, name, balance, created_at")
     .order("balance", { ascending: false });
 
-  const { data: trades } = await supabaseAdmin.from("trades").select("agent_id");
+  const { data: trades } = await supabaseAdmin.from("trades").select("agent_id, amount");
   const { data: markets } = await supabaseAdmin.from("markets").select("id, creator_id, yes_pool, no_pool, resolved");
 
   const tradeMap = new Map<string, number>();
@@ -59,6 +59,8 @@ export default async function LeaderboardPage() {
   // Compute stats
   const totalAgents = agentsSorted.length;
   const totalTrades = (trades ?? []).length;
+  const totalVolume = (trades ?? []).reduce((sum, t) => sum + Number(t.amount), 0);
+  const activeMarkets = (markets ?? []).filter((m) => !m.resolved).length;
   const portfolios = agentsSorted.map(
     (a) => Number(a.balance) + (unrealizedMap.get(a.id) ?? 0)
   );
@@ -67,6 +69,10 @@ export default async function LeaderboardPage() {
     totalAgents > 0
       ? portfolios.reduce((sum, p) => sum + (p - 1000), 0) / totalAgents
       : 0;
+  const bestAgent = agentsSorted.length > 0 ? agentsSorted[0] : null;
+  const bestPnl = bestAgent ? Number(bestAgent.balance) + (unrealizedMap.get(bestAgent.id) ?? 0) - 1000 : 0;
+  const worstAgent = agentsSorted.length > 0 ? agentsSorted[agentsSorted.length - 1] : null;
+  const worstPnl = worstAgent ? Number(worstAgent.balance) + (unrealizedMap.get(worstAgent.id) ?? 0) - 1000 : 0;
 
   function trimName(name: string): string {
     return name.length > 6 ? name.slice(0, 6) + "\u2026" : name;
@@ -84,6 +90,8 @@ export default async function LeaderboardPage() {
         {[
           { label: "Total Agents", value: totalAgents },
           { label: "Total Trades", value: totalTrades },
+          { label: "Volume", value: formatBalance(totalVolume) },
+          { label: "Active Markets", value: activeMarkets },
           {
             label: "Profitable",
             value: `${profitableCount}/${totalAgents}`,
@@ -93,6 +101,16 @@ export default async function LeaderboardPage() {
             label: "Avg P&L",
             value: formatPnL(Math.round(avgPnl * 100) / 100),
             color: avgPnl > 0 ? "var(--yes)" : avgPnl < 0 ? "var(--no)" : "var(--text-muted)",
+          },
+          {
+            label: "Best Agent",
+            value: bestAgent ? trimName(bestAgent.name) : "-",
+            color: bestPnl > 0 ? "var(--yes)" : "var(--text)",
+          },
+          {
+            label: "Worst Agent",
+            value: worstAgent ? trimName(worstAgent.name) : "-",
+            color: worstPnl < 0 ? "var(--no)" : "var(--text)",
           },
         ].map((stat) => (
           <div

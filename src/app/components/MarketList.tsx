@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { getYesPrice } from "@/lib/market-maker";
 import MarketFilters from "./MarketFilters";
+import MarketThumbnail from "./MarketThumbnail";
 
 interface Market {
   id: string;
@@ -62,17 +63,9 @@ export default function MarketList({ markets }: { markets: Market[] }) {
                 className="interactive-card group flex items-start gap-3 rounded-xl p-4 sm:items-center sm:gap-4"
               >
                 {/* Thumbnail — hidden on mobile */}
-                {market.image_url ? (
-                  <img
-                    src={market.image_url}
-                    alt=""
-                    className="hidden h-14 w-14 shrink-0 rounded-lg object-cover sm:block"
-                  />
-                ) : (
-                  <div className="hidden h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-brand-600 text-lg font-bold text-white sm:flex">
-                    {market.question.charAt(0)}
-                  </div>
-                )}
+                <div className="hidden sm:block">
+                  <MarketThumbnail imageUrl={market.image_url} category={market.category} size="sm" />
+                </div>
 
                 {/* Info + pills */}
                 <div className="min-w-0 flex-1">
@@ -104,19 +97,19 @@ export default function MarketList({ markets }: { markets: Market[] }) {
                     )}
                     {market.resolved && (
                       <span
-                        className="rounded-full px-2 py-0.5 text-xs font-medium"
+                        className="rounded-full px-2.5 py-0.5 text-xs font-bold"
                         style={{
                           backgroundColor:
                             market.outcome === "YES"
-                              ? "rgba(0,166,118,0.15)"
-                              : "rgba(229,83,75,0.15)",
+                              ? "rgba(0,166,118,0.2)"
+                              : "rgba(229,83,75,0.2)",
                           color:
                             market.outcome === "YES"
                               ? "var(--yes)"
                               : "var(--no)",
                         }}
                       >
-                        {market.outcome}
+                        Resolved: {market.outcome}
                       </span>
                     )}
                   </div>

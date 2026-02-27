@@ -45,7 +45,21 @@ export default async function AgentProfile({ params }: Props) {
     .select("id, question, resolved, outcome, yes_pool, no_pool")
     .eq("creator_id", id);
 
-  const pnl = Number(agent.balance) - 1000;
+  // Compute unrealized position value
+  const unrealized = (positions ?? []).reduce((sum, p) => {
+    const market = p.markets as {
+      question: string;
+      resolved: boolean;
+      outcome: string | null;
+      yes_pool: number;
+      no_pool: number;
+    } | null;
+    if (!market || market.resolved) return sum;
+    const yesPrice = getYesPrice({ yes_pool: market.yes_pool, no_pool: market.no_pool });
+    return sum + Number(p.yes_shares) * yesPrice + Number(p.no_shares) * (1 - yesPrice);
+  }, 0);
+  const portfolio = Number(agent.balance) + unrealized;
+  const pnl = portfolio - 1000;
   const tradeCount = (trades ?? []).length;
   const marketCount = (createdMarkets ?? []).length;
 
@@ -68,6 +82,97 @@ export default async function AgentProfile({ params }: Props) {
         <div className="mb-8">
           <h2 className="mb-3 text-lg font-semibold">Performance</h2>
           <AgentBalanceChart agentId={id} />
+        </div>
+
+        {/* Investments */}
+        <div className="mb-8">
+          <h2 className="mb-3 text-lg font-semibold">Investments</h2>
+          {(positions ?? []).length === 0 ? (
+            <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+              No investments yet
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {(positions ?? []).map((p) => {
+                const market = p.markets as {
+                  question: string;
+                  resolved: boolean;
+                  outcome: string | null;
+                  yes_pool: number;
+                  no_pool: number;
+                } | null;
+                const yesShares = Number(p.yes_shares);
+                const noShares = Number(p.no_shares);
+                const currentYesPrice = market
+                  ? getYesPrice({
+                      yes_pool: market.yes_pool,
+                      no_pool: market.no_pool,
+                    })
+                  : 0.5;
+                const value =
+                  yesShares * currentYesPrice +
+                  noShares * (1 - currentYesPrice);
+
+                // Determine status badge
+                let badge: { label: string; color: string; bg: string };
+                if (!market?.resolved) {
+                  badge = { label: "Open", color: "var(--primary-bright)", bg: "rgba(99,102,241,0.12)" };
+                } else if (
+                  (market.outcome === "YES" && yesShares > noShares) ||
+                  (market.outcome === "NO" && noShares > yesShares)
+                ) {
+                  badge = { label: "Won", color: "var(--yes)", bg: "rgba(0,166,118,0.12)" };
+                } else {
+                  badge = { label: "Lost", color: "var(--no)", bg: "rgba(229,83,75,0.12)" };
+                }
+
+                return (
+                  <div
+                    key={p.id}
+                    className="flex items-center justify-between rounded-xl border p-4"
+                    style={{
+                      borderColor: "var(--border)",
+                      backgroundColor: "var(--surface)",
+                    }}
+                  >
+                    <div className="min-w-0 flex-1 mr-4">
+                      <Link
+                        href={`/markets/${p.market_id}`}
+                        className="line-clamp-1 text-sm font-medium hover:underline"
+                        style={{ color: "var(--primary-bright)" }}
+                      >
+                        {market?.question ?? "Unknown"}
+                      </Link>
+                      <div
+                        className="mt-1 flex gap-3 text-xs"
+                        style={{ color: "var(--text-muted)" }}
+                      >
+                        {yesShares > 0 && (
+                          <span>
+                            <span style={{ color: "var(--yes)" }}>YES</span>{" "}
+                            {yesShares.toFixed(2)} shares
+                          </span>
+                        )}
+                        {noShares > 0 && (
+                          <span>
+                            <span style={{ color: "var(--no)" }}>NO</span>{" "}
+                            {noShares.toFixed(2)} shares
+                          </span>
+                        )}
+                        <span>Value: {formatBalance(value)}</span>
+                      </div>
+                    </div>
+                    <span
+                      className="shrink-0 rounded-full px-3 py-1 text-xs font-semibold"
+                      style={{ color: badge.color, backgroundColor: badge.bg }}
+                    >
+                      {badge.label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Trade history */}
@@ -201,7 +306,23 @@ export default async function AgentProfile({ params }: Props) {
           <h3 className="mb-3 font-semibold">Stats</h3>
           <dl className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt style={{ color: "var(--text-secondary)" }}>Balance</dt>
+              <dt style={{ color: "var(--text-secondary)" }}>Portfolio</dt>
+              <dd
+                className="tabular-nums font-semibold"
+                style={{
+                  color:
+                    portfolio > 1000
+                      ? "var(--yes)"
+                      : portfolio < 1000
+                        ? "var(--no)"
+                        : "var(--text)",
+                }}
+              >
+                {formatBalance(portfolio)}
+              </dd>
+            </div>
+            <div className="flex justify-between">
+              <dt style={{ color: "var(--text-secondary)" }}>Cash</dt>
               <dd className="tabular-nums font-semibold">
                 {formatBalance(Number(agent.balance))}
               </dd>
@@ -233,75 +354,6 @@ export default async function AgentProfile({ params }: Props) {
               <dd className="tabular-nums font-semibold">{marketCount}</dd>
             </div>
           </dl>
-        </div>
-
-        {/* Open Positions */}
-        <div
-          className="rounded-xl border p-5"
-          style={{
-            borderColor: "var(--border)",
-            backgroundColor: "var(--surface)",
-          }}
-        >
-          <h3 className="mb-3 font-semibold">Positions</h3>
-          {(positions ?? []).length === 0 ? (
-            <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-              No positions
-            </p>
-          ) : (
-            <div className="space-y-3 text-sm">
-              {(positions ?? []).map((p) => {
-                const market = p.markets as {
-                  question: string;
-                  resolved: boolean;
-                  outcome: string | null;
-                  yes_pool: number;
-                  no_pool: number;
-                } | null;
-                const yesShares = Number(p.yes_shares);
-                const noShares = Number(p.no_shares);
-                const currentYesPrice = market
-                  ? getYesPrice({
-                      yes_pool: market.yes_pool,
-                      no_pool: market.no_pool,
-                    })
-                  : 0.5;
-                const value =
-                  yesShares * currentYesPrice +
-                  noShares * (1 - currentYesPrice);
-
-                return (
-                  <div key={p.id}>
-                    <Link
-                      href={`/markets/${p.market_id}`}
-                      className="line-clamp-1 text-xs hover:underline"
-                      style={{ color: "var(--primary-bright)" }}
-                    >
-                      {market?.question ?? "Unknown"}
-                    </Link>
-                    <div
-                      className="mt-1 flex gap-3 text-xs"
-                      style={{ color: "var(--text-muted)" }}
-                    >
-                      {yesShares > 0 && (
-                        <span>
-                          <span style={{ color: "var(--yes)" }}>YES</span>{" "}
-                          {yesShares.toFixed(2)}
-                        </span>
-                      )}
-                      {noShares > 0 && (
-                        <span>
-                          <span style={{ color: "var(--no)" }}>NO</span>{" "}
-                          {noShares.toFixed(2)}
-                        </span>
-                      )}
-                      <span>Value: {value.toFixed(2)}</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
         </div>
 
         {/* Created Markets */}

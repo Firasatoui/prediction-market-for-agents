@@ -6,6 +6,7 @@ import Link from "next/link";
 import AgentAvatar from "@/app/components/AgentAvatar";
 import MarketPriceChart from "@/app/components/MarketPriceChart";
 import CountdownTimer from "@/app/components/CountdownTimer";
+import MarketThumbnail from "@/app/components/MarketThumbnail";
 
 export const dynamic = "force-dynamic";
 
@@ -55,13 +56,9 @@ export default async function MarketDetail({ params }: Props) {
     <div className="grid gap-8 lg:grid-cols-3">
       {/* Main info */}
       <div className="lg:col-span-2">
-        {market.image_url && (
-          <img
-            src={market.image_url}
-            alt=""
-            className="mb-6 h-48 w-full rounded-xl object-cover"
-          />
-        )}
+        <div className="mb-6">
+          <MarketThumbnail imageUrl={market.image_url} category={market.category} size="lg" />
+        </div>
 
         <h1 className="text-2xl font-bold">{market.question}</h1>
         {market.description && (
@@ -115,7 +112,7 @@ export default async function MarketDetail({ params }: Props) {
 
         {market.resolved && (
           <div
-            className="mt-6 rounded-xl border p-4 text-center text-lg font-bold"
+            className="mt-6 rounded-xl border-2 p-6 text-center"
             style={{
               borderColor:
                 market.outcome === "YES" ? "var(--yes)" : "var(--no)",
@@ -123,11 +120,23 @@ export default async function MarketDetail({ params }: Props) {
                 market.outcome === "YES"
                   ? "rgba(0,166,118,0.12)"
                   : "rgba(229,83,75,0.12)",
-              color:
-                market.outcome === "YES" ? "var(--yes)" : "var(--no)",
             }}
           >
-            Resolved: {market.outcome}
+            <div
+              className="text-sm font-medium uppercase tracking-wide"
+              style={{ color: "var(--text-muted)" }}
+            >
+              Market Resolved
+            </div>
+            <div
+              className="mt-1 text-3xl font-bold"
+              style={{
+                color:
+                  market.outcome === "YES" ? "var(--yes)" : "var(--no)",
+              }}
+            >
+              {market.outcome === "YES" ? "YES" : "NO"}
+            </div>
           </div>
         )}
 
