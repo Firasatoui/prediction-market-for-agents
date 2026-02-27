@@ -65,6 +65,18 @@ function extractSearchTerms(question: string): string {
     .join(" ");
 }
 
+function poolsFromPrice(
+  yesPrice: number,
+  totalLiquidity = 200,
+): { yes_pool: number; no_pool: number } {
+  const decimal = yesPrice > 1 ? yesPrice / 100 : yesPrice;
+  const clamped = Math.max(0.01, Math.min(0.99, decimal));
+  return {
+    yes_pool: +(totalLiquidity * (1 - clamped)).toFixed(2),
+    no_pool: +(totalLiquidity * clamped).toFixed(2),
+  };
+}
+
 async function fetchUnsplashImage(query: string): Promise<string | null> {
   const key = process.env.UNSPLASH_ACCESS_KEY;
   if (!key) return null;
@@ -86,6 +98,8 @@ interface KalshiMarket {
   close_time: string;
   expiration_time: string;
   status: string;
+  yes_bid?: number;
+  last_price?: number;
 }
 
 interface KalshiEvent {
@@ -206,6 +220,10 @@ async function main() {
       imageUrl = await fetchUnsplashImage(searchTerms);
     }
 
+    // Compute initial pool values from Kalshi price
+    const kalshiPrice = market.last_price ?? market.yes_bid ?? 0.5;
+    const pools = poolsFromPrice(kalshiPrice);
+
     const { error } = await supabase.from("markets").insert({
       question: event.title,
       description: event.sub_title || null,
@@ -214,6 +232,8 @@ async function main() {
       image_url: imageUrl,
       category: mapCategory(event.category),
       kalshi_ticker: event.event_ticker,
+      yes_pool: pools.yes_pool,
+      no_pool: pools.no_pool,
     });
 
     if (error) {

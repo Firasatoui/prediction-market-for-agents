@@ -15,12 +15,14 @@ const CATEGORY_MAP: Record<string, string> = {
   World: "World",
 };
 
-interface KalshiMarket {
+export interface KalshiMarket {
   ticker: string;
   close_time: string;
   expiration_time: string;
   status: string;
   rules_primary?: string;
+  yes_bid?: number;
+  last_price?: number;
 }
 
 export interface KalshiEvent {
@@ -79,4 +81,17 @@ export async function fetchUnsplashImage(
   } catch {
     return null;
   }
+}
+
+/** Convert a YES probability to CPMM pool values. Accepts cents (0-99) or decimal (0-1). */
+export function poolsFromPrice(
+  yesPrice: number,
+  totalLiquidity = 200,
+): { yes_pool: number; no_pool: number } {
+  const decimal = yesPrice > 1 ? yesPrice / 100 : yesPrice;
+  const clamped = Math.max(0.01, Math.min(0.99, decimal));
+  return {
+    yes_pool: +(totalLiquidity * (1 - clamped)).toFixed(2),
+    no_pool: +(totalLiquidity * clamped).toFixed(2),
+  };
 }

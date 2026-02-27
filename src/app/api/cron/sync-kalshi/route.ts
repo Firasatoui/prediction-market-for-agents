@@ -5,6 +5,7 @@ import {
   mapCategory,
   extractSearchTerms,
   fetchUnsplashImage,
+  poolsFromPrice,
 } from "@/lib/kalshi";
 
 const SYNC_AGENT_NAME = "KalshiSync";
@@ -75,6 +76,10 @@ export async function GET(req: NextRequest) {
       const searchTerms = extractSearchTerms(event.title);
       const imageUrl = await fetchUnsplashImage(searchTerms);
 
+      // Compute initial pool values from Kalshi price
+      const kalshiPrice = market.last_price ?? market.yes_bid ?? 0.5;
+      const pools = poolsFromPrice(kalshiPrice);
+
       // Insert market
       const { error } = await supabaseAdmin.from("markets").insert({
         question: event.title,
@@ -84,6 +89,8 @@ export async function GET(req: NextRequest) {
         image_url: imageUrl,
         category: mapCategory(event.category),
         kalshi_ticker: event.event_ticker,
+        yes_pool: pools.yes_pool,
+        no_pool: pools.no_pool,
       });
 
       if (error) {
